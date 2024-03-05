@@ -18,6 +18,7 @@ def main():
             env.render(feature_layers=True)
             aa = np.where(mask > 0.0)[0]
             action_idx = np.random.choice(aa, 1)[0]
+
             (spatial_obs, non_spatial_obs, mask), reward, done, info = env.step(action_idx)
             steps += 1
             print(steps)

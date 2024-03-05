@@ -3,6 +3,8 @@
 import botbowl
 import numpy as np
 
+# Server
+import botbowl.web.server as server
 
 class MyRandomBot(botbowl.Agent):
 
@@ -38,6 +40,7 @@ class MyRandomBot(botbowl.Agent):
 
 # Register the bot to the framework
 botbowl.register_bot('my-random-bot', MyRandomBot)
+server.start_server(debug=True, use_reloader=False)
 
 
 if __name__ == "__main__":

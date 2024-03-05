@@ -11,14 +11,14 @@ from torch.autograd import Variable
 
 import botbowl
 from botbowl.ai.env import BotBowlEnv, RewardWrapper, EnvConf, ScriptedActionWrapper, BotBowlWrapper, PPCGWrapper
-from examples.a2c.a2c_agent import A2CAgent, CNNPolicy
-from examples.a2c.a2c_env import A2C_Reward, a2c_scripted_actions
+from a2c_agent import A2CAgent, CNNPolicy
+from a2c_env import A2C_Reward, a2c_scripted_actions
 from botbowl.ai.layers import *
 
 # Environment
 env_size = 1  # Options are 1,3,5,7,11
 env_name = f"botbowl-{env_size}"
-env_conf = EnvConf(size=env_size, pathfinding=False)
+env_conf = EnvConf(size=env_size, pathfinding=True)
 
 make_agent_from_model = partial(A2CAgent, env_conf=env_conf, scripted_func=a2c_scripted_actions)
 
@@ -43,13 +43,13 @@ value_loss_coef = 0.5
 max_grad_norm = 0.05
 log_interval = 50
 save_interval = 10
-ppcg = False
+ppcg = True
 
 
 reset_steps = 5000  # The environment is reset after this many steps it gets stuck
 
 # Self-play
-selfplay = False  # Use this to enable/disable self-play
+selfplay = True  # Use this to enable/disable self-play
 selfplay_window = 1
 selfplay_save_steps = int(num_steps / 10)
 selfplay_swap_steps = selfplay_save_steps

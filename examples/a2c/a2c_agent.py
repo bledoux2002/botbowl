@@ -9,7 +9,7 @@ from torch.autograd import Variable
 
 import botbowl
 from botbowl.ai.env import EnvConf, BotBowlEnv
-from examples.a2c.a2c_env import a2c_scripted_actions
+from a2c_env import a2c_scripted_actions
 from botbowl.ai.layers import *
 
 # Architecture
