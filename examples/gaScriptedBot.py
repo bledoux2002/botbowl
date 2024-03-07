@@ -14,11 +14,10 @@ from geneticAlgorithm import *
 import json
 
 ## Variable randomizer
-def randomizeChoice(a, b):
-    choice = random.getrandbits(1)
-    if choice == 0:
+def binaryChoice(binary, a, b):
+    if binary == 0:
         return a
-    elif choice == 1:
+    elif binary == 1:
         return b
     else:
         print(f"Error with selection, defaulting to {b}")
@@ -102,7 +101,7 @@ class GAScriptedBot(ProcBot):
         with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
         self.geneSequence = chromoData["currentChromosome"]
-        print(self.gene)
+        print(self.geneSequence)
 #        geneSequence = str(random.getrandbits(15))
 #        geneSequence = str(111111111111111)
 #        self.geneSequence = str(self.gene())
@@ -776,8 +775,6 @@ class GAScriptedBot(ProcBot):
         print(output)
         with open(f'results/{self.gene}_results.txt', 'a', encoding='utf-8') as outputFile:
             outputFile.write(output + "\n")
-        
-        
 
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
@@ -841,10 +838,12 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 def main():
     ## GA Setup
     chromoLen = 15
-    popSize = 10
-    mutRate = 0.1
+    popSize = 100
+    mutRate = 0.01
+    numToSave = 0
     targetVal = 1
-    ga = GeneticAlgorithm(chromoLen, popSize, mutRate, targetVal)
+    iterations = 1
+    ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     population = ga.initialize_pop()
     found = False
     generation = 1
@@ -852,7 +851,7 @@ def main():
     # Update first chromosome to test
     with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
         chromoData = json.load(chromoFile)
-    chromoData["currentChromosome"] = str(population[0])
+    chromoData["currentChromosome"] = population[0]
     with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
     
@@ -871,6 +870,7 @@ def main():
     # Loop until target found or generations max out
     while not found and generation <= 10:
         
+        # List of (population, fitness) tuples
         population_eval = []
         
         # Avg performance of individual chromosomes in a pop
@@ -879,14 +879,15 @@ def main():
             # Update current chromosome for bot to use
             with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
                 chromoData = json.load(chromoFile)
-            chromoData["currentChromosome"] = str(population[i])
+            chromoData["currentChromosome"] = population[i]
             with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
-                
-            num_games = 10
+
+            # Simulate games using GA bot against Scripted Bot 
+            num_games = iterations
             wins = 0
             tds = 0
-            # Play 10 games
+            # Play x games
             for i in range(num_games):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
@@ -903,6 +904,7 @@ def main():
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
                 tds += game.state.home_team.state.score
+
             # Log performance
             chromo = population[i]
             output = f"{chromo} won {wins}/{num_games}\t"
@@ -913,13 +915,14 @@ def main():
                 outputFile.write(output + "\n")
 
             # Calculate fitness of current chromosome
-            
             population_eval.append(ga.fitness_cal(population[i], avgTouchdowns))
 
-        # Rest of GA
+        ## Bulk of GA
         
-        population_eval = sorted(population_eval, key = lambda x: x[1]) # Sort by fitness
+        # Sort by fitness
+        population_eval = sorted(population_eval, key = lambda x: x[1])
         
+        # Break if target met
         if (population_eval[0][1] == targetVal):
             print('Target found')
             print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
@@ -927,21 +930,16 @@ def main():
         print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
         generation += 1
 
-
-        # 3.1) select best 1/2 chromosomes from current population
+        # Select best 1/2 chromosomes from current population
         selected = ga.selection(population_eval)
 
-        # 3.2) mate parents to make new generation
+        # Mate parents to make new generation
         crossovered = ga.crossover(selected)
 
-        # 3.3) mutating the childeren to diversfy the new generation
+        # Mutate the new generation for *variety*
         mutated = ga.mutate(crossovered)
 
-        # 3.4) replacement of bad population with new generation
-        # we sort here first to compare the least fit population with the most fit new_gen
-
-        # take best half of first generation and append children
-        
+        # Replacement of old population with new generation
         population = ga.replace(population_eval, mutated)
 
 if __name__ == "__main__":
