@@ -1,0 +1,102 @@
+Randomized Scripted Bot Record: 24 wins, 34 draws, 42 losses
+
+Starting game 1    Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      11.350182294845581  
+Starting game 2    Casualties:  2     I (GA Scripted Bot) won 2 - 0     Casualties:  2     I (Scripted Bot) lost    0 - 2   11.316160678863525  
+Starting game 3    Casualties:  1     I (GA Scripted Bot) lost 0 - 2    Casualties:  1     I (Scripted Bot) won     2 - 0   11.074834108352661  
+Starting game 4    Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      8.85619330406189    
+Starting game 5    Casualties:  1     I (GA Scripted Bot) lost 0 - 1    Casualties:  1     I (Scripted Bot) won     1 - 0   11.864597797393799  
+Starting game 6    Casualties:  1     It's a draw                       Casualties:  1     It's a draw                      11.73899793624878   
+Starting game 7    Casualties:  2     I (GA Scripted Bot) won 1 - 0     Casualties:  2     I (Scripted Bot) lost    0 - 1   11.581152439117432  
+Starting game 8    Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      12.8394296169281    
+Starting game 9    Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      11.0270254611969    
+Starting game 10   Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      10.545220851898193  
+Starting game 11   Casualties:  4     I (GA Scripted Bot) won 2 - 0     Casualties:  4     I (Scripted Bot) lost    0 - 2   11.673705816268921  
+Starting game 12   Casualties:  2     I (GA Scripted Bot) lost 1 - 2    Casualties:  2     I (Scripted Bot) won     2 - 1   11.345340728759766  
+Starting game 13   Casualties:  6     I (GA Scripted Bot) lost 0 - 1    Casualties:  6     I (Scripted Bot) won     1 - 0   10.99456000328064   
+Starting game 14   Casualties:  4     I (GA Scripted Bot) lost 1 - 2    Casualties:  4     I (Scripted Bot) won     2 - 1   10.952504634857178  
+Starting game 15   Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      12.94378137588501   
+Starting game 16   Casualties:  7     It's a draw                       Casualties:  7     It's a draw                      8.034482479095459   
+Starting game 17   Casualties:  4     I (GA Scripted Bot) lost 0 - 2    Casualties:  4     I (Scripted Bot) won     2 - 0   9.48605227470398    
+Starting game 18   Casualties:  8     I (GA Scripted Bot) won 1 - 0     Casualties:  8     I (Scripted Bot) lost    0 - 1   8.932119607925415   
+Starting game 19   Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      9.682213544845581   
+Starting game 20   Casualties:  7     I (GA Scripted Bot) lost 0 - 1    Casualties:  7     I (Scripted Bot) won     1 - 0   10.25475263595581   
+Starting game 21   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   9.277529239654541   
+Starting game 22   Casualties:  5     I (GA Scripted Bot) won 1 - 0     Casualties:  5     I (Scripted Bot) lost    0 - 1   9.46632981300354    
+Starting game 23   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      11.385950803756714  
+Starting game 24   Casualties:  1     I (GA Scripted Bot) lost 1 - 2    Casualties:  1     I (Scripted Bot) won     2 - 1   11.971632480621338  
+Starting game 25   Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      12.098663806915283  
+Starting game 26   Casualties:  5     I (GA Scripted Bot) lost 1 - 2    Casualties:  5     I (Scripted Bot) won     2 - 1   14.09706711769104   
+Starting game 27   Casualties:  1     It's a draw                       Casualties:  1     It's a draw                      11.403919219970703  
+Starting game 28   Casualties:  7     I (GA Scripted Bot) won 1 - 0     Casualties:  7     I (Scripted Bot) lost    0 - 1   7.178750991821289   
+Starting game 29   Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      11.74669623374939   
+Starting game 30   Casualties:  3     I (GA Scripted Bot) won 2 - 1     Casualties:  3     I (Scripted Bot) lost    1 - 2   12.819101333618164  
+Starting game 31   Casualties:  0     I (GA Scripted Bot) lost 0 - 2    Casualties:  0     I (Scripted Bot) won     2 - 0   11.685867309570312  
+Starting game 32   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      10.694591760635376  
+Starting game 33   Casualties:  0     I (GA Scripted Bot) lost 0 - 1    Casualties:  0     I (Scripted Bot) won     1 - 0   11.009423732757568  
+Starting game 34   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      11.097480535507202  
+Starting game 35   Casualties:  2     I (GA Scripted Bot) lost 0 - 1    Casualties:  2     I (Scripted Bot) won     1 - 0   9.7428457736969     
+Starting game 36   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      10.782902479171753  
+Starting game 37   Casualties:  4     I (GA Scripted Bot) lost 0 - 1    Casualties:  4     I (Scripted Bot) won     1 - 0   11.791688203811646  
+Starting game 38   Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      13.574042081832886  
+Starting game 39   Casualties:  2     I (GA Scripted Bot) lost 0 - 1    Casualties:  2     I (Scripted Bot) won     1 - 0   12.078327894210815  
+Starting game 40   Casualties:  3     I (GA Scripted Bot) lost 0 - 2    Casualties:  3     I (Scripted Bot) won     2 - 0   12.512800455093384  
+Starting game 41   Casualties:  3     I (GA Scripted Bot) lost 1 - 3    Casualties:  3     I (Scripted Bot) won     3 - 1   14.972321033477783  
+Starting game 42   Casualties:  2     I (GA Scripted Bot) lost 0 - 1    Casualties:  2     I (Scripted Bot) won     1 - 0   10.599623441696167  
+Starting game 43   Casualties:  3     I (GA Scripted Bot) won 1 - 0     Casualties:  3     I (Scripted Bot) lost    0 - 1   8.416630983352661   
+Starting game 44   Casualties:  3     I (GA Scripted Bot) lost 0 - 2    Casualties:  3     I (Scripted Bot) won     2 - 0   12.67723560333252   
+Starting game 45   Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      10.719829797744751  
+Starting game 46   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   11.721319198608398  
+Starting game 47   Casualties:  3     I (GA Scripted Bot) won 2 - 1     Casualties:  3     I (Scripted Bot) lost    1 - 2   12.381028890609741  
+Starting game 48   Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      12.21470022201538   
+Starting game 49   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      10.234826803207397  
+Starting game 50   Casualties:  2     I (GA Scripted Bot) lost 0 - 1    Casualties:  2     I (Scripted Bot) won     1 - 0   8.683470726013184   
+Starting game 51   Casualties:  1     I (GA Scripted Bot) lost 0 - 1    Casualties:  1     I (Scripted Bot) won     1 - 0   8.694363355636597   
+Starting game 52   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   11.327749252319336  
+Starting game 53   Casualties:  5     It's a draw                       Casualties:  5     It's a draw                      8.671042919158936   
+Starting game 54   Casualties:  1     I (GA Scripted Bot) won 1 - 0     Casualties:  1     I (Scripted Bot) lost    0 - 1   9.266162157058716   
+Starting game 55   Casualties:  1     I (GA Scripted Bot) lost 0 - 2    Casualties:  1     I (Scripted Bot) won     2 - 0   10.860704898834229  
+Starting game 56   Casualties:  0     I (GA Scripted Bot) lost 0 - 2    Casualties:  0     I (Scripted Bot) won     2 - 0   12.130298614501953  
+Starting game 57   Casualties:  2     I (GA Scripted Bot) won 1 - 0     Casualties:  2     I (Scripted Bot) lost    0 - 1   8.144699096679688   
+Starting game 58   Casualties:  1     I (GA Scripted Bot) lost 0 - 1    Casualties:  1     I (Scripted Bot) won     1 - 0   10.943317651748657  
+Starting game 59   Casualties:  4     I (GA Scripted Bot) won 1 - 0     Casualties:  4     I (Scripted Bot) lost    0 - 1   9.173462867736816   
+Starting game 60   Casualties:  3     I (GA Scripted Bot) won 2 - 0     Casualties:  3     I (Scripted Bot) lost    0 - 2   11.836153268814087  
+Starting game 61   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      9.234807968139648   
+Starting game 62   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   9.027795791625977   
+Starting game 63   Casualties:  4     I (GA Scripted Bot) lost 1 - 2    Casualties:  4     I (Scripted Bot) won     2 - 1   10.820093631744385  
+Starting game 64   Casualties:  2     I (GA Scripted Bot) won 1 - 0     Casualties:  2     I (Scripted Bot) lost    0 - 1   9.73939061164856    
+Starting game 65   Casualties:  5     I (GA Scripted Bot) lost 0 - 1    Casualties:  5     I (Scripted Bot) won     1 - 0   9.526617765426636   
+Starting game 66   Casualties:  1     It's a draw                       Casualties:  1     It's a draw                      11.159546613693237  
+Starting game 67   Casualties:  3     I (GA Scripted Bot) lost 0 - 2    Casualties:  3     I (Scripted Bot) won     2 - 0   10.386590957641602  
+Starting game 68   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   9.101871967315674   
+Starting game 69   Casualties:  5     I (GA Scripted Bot) won 1 - 0     Casualties:  5     I (Scripted Bot) lost    0 - 1   8.602176427841187   
+Starting game 70   Casualties:  3     I (GA Scripted Bot) won 1 - 0     Casualties:  3     I (Scripted Bot) lost    0 - 1   9.370607137680054   
+Starting game 71   Casualties:  2     I (GA Scripted Bot) won 2 - 1     Casualties:  2     I (Scripted Bot) lost    1 - 2   11.097005367279053  
+Starting game 72   Casualties:  4     I (GA Scripted Bot) lost 0 - 1    Casualties:  4     I (Scripted Bot) won     1 - 0   9.672595500946045   
+Starting game 73   Casualties:  0     It's a draw                       Casualties:  0     It's a draw                      9.528884410858154   
+Starting game 74   Casualties:  4     I (GA Scripted Bot) lost 0 - 2    Casualties:  4     I (Scripted Bot) won     2 - 0   10.61886191368103   
+Starting game 75   Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      9.61033844947815    
+Starting game 76   Casualties:  5     It's a draw                       Casualties:  5     It's a draw                      8.163137197494507   
+Starting game 77   Casualties:  3     I (GA Scripted Bot) won 1 - 0     Casualties:  3     I (Scripted Bot) lost    0 - 1   6.8469202518463135  
+Starting game 78   Casualties:  4     I (GA Scripted Bot) won 1 - 0     Casualties:  4     I (Scripted Bot) lost    0 - 1   9.670782804489136   
+Starting game 79   Casualties:  4     I (GA Scripted Bot) lost 0 - 1    Casualties:  4     I (Scripted Bot) won     1 - 0   8.54342269897461    
+Starting game 80   Casualties:  4     I (GA Scripted Bot) won 1 - 0     Casualties:  4     I (Scripted Bot) lost    0 - 1   9.522034645080566   
+Starting game 81   Casualties:  3     It's a draw                       Casualties:  3     It's a draw                      10.246667861938477  
+Starting game 82   Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      10.735443115234375  
+Starting game 83   Casualties:  1     It's a draw                       Casualties:  1     It's a draw                      9.83688735961914    
+Starting game 84   Casualties:  1     I (GA Scripted Bot) lost 0 - 1    Casualties:  1     I (Scripted Bot) won     1 - 0   10.23556113243103   
+Starting game 85   Casualties:  3     I (GA Scripted Bot) won 1 - 0     Casualties:  3     I (Scripted Bot) lost    0 - 1   7.643366813659668   
+Starting game 86   Casualties:  2     I (GA Scripted Bot) won 2 - 0     Casualties:  2     I (Scripted Bot) lost    0 - 2   9.78252649307251    
+Starting game 87   Casualties:  3     I (GA Scripted Bot) won 1 - 0     Casualties:  3     I (Scripted Bot) lost    0 - 1   9.014461278915405   
+Starting game 88   Casualties:  1     I (GA Scripted Bot) lost 0 - 1    Casualties:  1     I (Scripted Bot) won     1 - 0   10.668198347091675  
+Starting game 89   Casualties:  4     I (GA Scripted Bot) lost 0 - 1    Casualties:  4     I (Scripted Bot) won     1 - 0   9.010998964309692   
+Starting game 90   Casualties:  4     I (GA Scripted Bot) lost 0 - 1    Casualties:  4     I (Scripted Bot) won     1 - 0   10.664193868637085  
+Starting game 91   Casualties:  4     It's a draw                       Casualties:  4     It's a draw                      10.181365013122559  
+Starting game 92   Casualties:  0     It's a draw                       Casualties:  0     It's a draw                      8.916327238082886   
+Starting game 93   Casualties:  2     I (GA Scripted Bot) won 1 - 0     Casualties:  2     I (Scripted Bot) lost    0 - 1   10.526140451431274  
+Starting game 94   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   10.313804388046265  
+Starting game 95   Casualties:  3     I (GA Scripted Bot) lost 0 - 1    Casualties:  3     I (Scripted Bot) won     1 - 0   10.590456485748291  
+Starting game 96   Casualties:  1     It's a draw                       Casualties:  1     It's a draw                      12.948427438735962  
+Starting game 97   Casualties:  3     I (GA Scripted Bot) lost 1 - 2    Casualties:  3     I (Scripted Bot) won     2 - 1   10.365308046340942  
+Starting game 98   Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      9.698218822479248   
+Starting game 99   Casualties:  2     I (GA Scripted Bot) lost 0 - 1    Casualties:  2     I (Scripted Bot) won     1 - 0   9.361163854598999   
+Starting game 100  Casualties:  2     It's a draw                       Casualties:  2     It's a draw                      9.291986465454102  won 24/100         Own TDs per game=0.62

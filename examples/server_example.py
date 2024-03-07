@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from ga_scripted_bot_example import *
+from gaScriptedBot import *
 from scripted_bot_example import *
 
 import botbowl.web.server as server

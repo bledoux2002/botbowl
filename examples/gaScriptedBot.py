@@ -10,6 +10,8 @@ from botbowl.core.pathfinding.python_pathfinding import Path  # Only used for ty
 
 from scripted_bot_example import *
 import random
+from geneticAlgorithm import *
+import json
 
 ## Variable randomizer
 def randomizeChoice(a, b):
@@ -23,6 +25,7 @@ def randomizeChoice(a, b):
         return b
 
 ## GA Variables
+"""
 coinChoice = randomizeChoice(ActionType.HEADS, ActionType.TAILS)
 kickChoice = randomizeChoice(ActionType.KICK, ActionType.RECEIVE)
 
@@ -43,9 +46,7 @@ wrestleSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
 standFirmSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
 proSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
 useBribe = randomizeChoice(ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
-
-
-
+"""
 
 class GAScriptedBot(ProcBot):
 
@@ -96,6 +97,35 @@ class GAScriptedBot(ProcBot):
         self.off_formation = Formation("Wedge offense", self.off_formation)
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
+        
+        ## Genes from GA
+        with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+            chromoData = json.load(chromoFile)
+        self.geneSequence = chromoData["currentChromosome"]
+        print(self.gene)
+#        geneSequence = str(random.getrandbits(15))
+#        geneSequence = str(111111111111111)
+#        self.geneSequence = str(self.gene())
+        self.coinChoice = int(self.geneSequence[0])
+        self.kickChoice = int(self.geneSequence[1])
+        
+        self.dodgeReroll = int(self.geneSequence[2])
+        self.pickupReroll = int(self.geneSequence[3])
+        self.passReroll = int(self.geneSequence[4])
+        self.catchReroll = int(self.geneSequence[5])
+        self.GFIReroll = int(self.geneSequence[6])
+        self.bloodlustReroll = int(self.geneSequence[7])
+        self.blockReroll = int(self.geneSequence[8])
+        
+        self.tdPathProb = 0.9
+        
+        self.apothecaryChoice = int(self.geneSequence[9])
+        
+        self.juggernautSkill = int(self.geneSequence[10])
+        self.wrestleSkill = int(self.geneSequence[11])
+        self.standFirmSkill = int(self.geneSequence[12])
+        self.proSkill = int(self.geneSequence[13])
+        self.useBribe = int(self.geneSequence[14])
 
     def new_game(self, game, team):
         """
@@ -110,7 +140,7 @@ class GAScriptedBot(ProcBot):
         """
         Select heads/tails and/or kick/receive
         """
-        return Action(coinChoice)
+        return Action(self.coinChoice)
         # return Action(ActionType.TAILS)
         # return Action(ActionType.HEADS)
 
@@ -118,7 +148,7 @@ class GAScriptedBot(ProcBot):
         """
         Select heads/tails and/or kick/receive
         """
-        return Action(kickChoice)
+        return Action(self.kickChoice)
         # return Action(ActionType.RECEIVE)
         # return Action(ActionType.KICK)
 
@@ -165,17 +195,17 @@ class GAScriptedBot(ProcBot):
         reroll_proc = game.get_procedure()
         context = reroll_proc.context
         if type(context) == botbowl.Dodge:
-            return Action(dodgeReroll)
+            return Action(self.dodgeReroll)
         if type(context) == botbowl.Pickup:
-            return Action(pickupReroll)
+            return Action(self.pickupReroll)
         if type(context) == botbowl.PassAttempt:
-            return Action(passReroll)
+            return Action(self.passReroll)
         if type(context) == botbowl.Catch:
-            return Action(catchReroll)
+            return Action(self.catchReroll)
         if type(context) == botbowl.GFI:
-            return Action(GFIReroll)
+            return Action(self.GFIReroll)
         if type(context) == botbowl.BloodLust:
-            return Action(bloodlustReroll)
+            return Action(self.bloodlustReroll)
         if type(context) == botbowl.Block:
             attacker = context.attacker
             attackers_down = 0
@@ -564,7 +594,7 @@ class GAScriptedBot(ProcBot):
         ball_carrier = game.get_ball_carrier()
         if ball_carrier == game.get_active_player():
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier)
-            if td_path is not None and td_path.prob <= tdPathProb:
+            if td_path is not None and td_path.prob <= self.tdPathProb:
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
                 #print(f"Scoring with {ball_carrier.role.name}, p={td_path.prob}")
                 return self._get_next_action()
@@ -644,7 +674,7 @@ class GAScriptedBot(ProcBot):
         """
         Use apothecary?
         """
-        return Action(apothecaryChoice)
+        return Action(self.apothecaryChoice)
         # return Action(ActionType.USE_APOTHECARY)
         # return Action(ActionType.DONT_USE_APOTHECARY)
 
@@ -662,7 +692,7 @@ class GAScriptedBot(ProcBot):
         """
         Reroll or not.
         """
-        return Action(passReroll)
+        return Action(self.passReroll)
         # return Action(ActionType.USE_REROLL)
         # return Action(ActionType.DONT_USE_REROLL)
 
@@ -670,7 +700,7 @@ class GAScriptedBot(ProcBot):
         """
         Reroll or not.
         """
-        return Action(catchReroll)
+        return Action(self.catchReroll)
         # return Action(ActionType.USE_REROLL)
         # return Action(ActionType.DONT_USE_REROLL)
 
@@ -678,7 +708,7 @@ class GAScriptedBot(ProcBot):
         """
         Reroll or not.
         """
-        return Action(GFIReroll)
+        return Action(self.GFIReroll)
         # return Action(ActionType.USE_REROLL)
         # return Action(ActionType.DONT_USE_REROLL)
 
@@ -686,7 +716,7 @@ class GAScriptedBot(ProcBot):
         """
         Reroll or not.
         """
-        return Action(dodgeReroll)
+        return Action(self.dodgeReroll)
         # return Action(ActionType.USE_REROLL)
         # return Action(ActionType.DONT_USE_REROLL)
 
@@ -694,32 +724,32 @@ class GAScriptedBot(ProcBot):
         """
         Reroll or not.
         """
-        return Action(pickupReroll)
+        return Action(self.pickupReroll)
         # return Action(ActionType.USE_REROLL)
         # return Action(ActionType.DONT_USE_REROLL)
 
     def use_juggernaut(self, game):
-        return Action(juggernautSkill)
+        return Action(self.juggernautSkill)
         # return Action(ActionType.USE_SKILL)
         # return Action(ActionType.DONT_USE_SKILL)
 
     def use_wrestle(self, game):
-        return Action(wrestleSkill)
+        return Action(self.wrestleSkill)
         # return Action(ActionType.USE_SKILL)
         # return Action(ActionType.DONT_USE_SKILL)
 
     def use_stand_firm(self, game):
-        return Action(standFirmSkill)
+        return Action(self.standFirmSkill)
         # return Action(ActionType.USE_SKILL)
         # return Action(ActionType.DONT_USE_SKILL)
 
     def use_pro(self, game):
-        return Action(proSkill)
+        return Action(self.proSkill)
         # return Action(ActionType.USE_SKILL)
         # return Action(ActionType.DONT_USE_SKILL)
 
     def use_bribe(self, game):
-        return Action(useBribe)
+        return Action(self.useBribe)
         # return Action(ActionType.USE_BRIBE)
 
     def blood_lust_block_or_move(self, game):
@@ -734,15 +764,20 @@ class GAScriptedBot(ProcBot):
         Called when a game ends.
         """
         winner = game.get_winning_team()
-        print("Casualties: ", game.num_casualties())
+        output = "Casualties: " + game.num_casualties() + "\n"
         if winner is None:
-            print("It's a draw")
+            output += "It's a draw" + "\n"
         elif winner == self.my_team:
-            print("I ({}) won".format(self.name))
-            print(self.my_team.state.score, "-", self.opp_team.state.score)
+            output += "I ({}) won".format(self.name) + "\n"
         else:
-            print("I ({}) lost".format(self.name))
-            print(self.my_team.state.score, "-", self.opp_team.state.score)
+            output += "I ({}) lost".format(self.name) + "\n"
+        output += self.my_team.state.score, "-", self.opp_team.state.score + "\n"
+        output += self.geneSequence + "\n"
+        print(output)
+        with open(f'results/{self.gene}_results.txt', 'a', encoding='utf-8') as outputFile:
+            outputFile.write(output + "\n")
+        
+        
 
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
@@ -800,10 +835,27 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
 
 
 # Register MyScriptedBot
-botbowl.register_bot('ga scripted', GAScriptedBot)
+botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
 def main():
+    ## GA Setup
+    chromoLen = 15
+    popSize = 10
+    mutRate = 0.1
+    targetVal = 1
+    ga = GeneticAlgorithm(chromoLen, popSize, mutRate, targetVal)
+    population = ga.initialize_pop()
+    found = False
+    generation = 1
+    
+    # Update first chromosome to test
+    with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+        chromoData = json.load(chromoFile)
+    chromoData["currentChromosome"] = str(population[0])
+    with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
+        json.dump(chromoData, chromoFile, indent = 4)
+    
     # Load configurations, rules, arena and teams
     config = botbowl.load_config("bot-bowl")
     config.competition_mode = False
@@ -815,31 +867,82 @@ def main():
     arena = botbowl.load_arena(config.arena)
     home = botbowl.load_team_by_filename("human", ruleset)
     away = botbowl.load_team_by_filename("human", ruleset)
+    
+    # Loop until target found or generations max out
+    while not found and generation <= 10:
+        
+        population_eval = []
+        
+        # Avg performance of individual chromosomes in a pop
+        for i in range (popSize):
+            
+            # Update current chromosome for bot to use
+            with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+                chromoData = json.load(chromoFile)
+            chromoData["currentChromosome"] = str(population[i])
+            with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
+                json.dump(chromoData, chromoFile, indent=4)
+                
+            num_games = 10
+            wins = 0
+            tds = 0
+            # Play 10 games
+            for i in range(num_games):
+                home_agent = botbowl.make_bot('ga_scripted')
+                home_agent.name = "GA Scripted Bot"
+                away_agent = botbowl.make_bot('scripted')
+                away_agent.name = "Scripted Bot"
+                config.debug_mode = False
+                game = botbowl.Game(i, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
+                game.config.fast_mode = True
+                print("Starting game", (i+1))
+                start = time.time()
+                game.init()
+                end = time.time()
+                print(end - start)
 
-    num_games = 10
-    wins = 0
-    tds = 0
-    # Play 10 games
-    for i in range(num_games):
-        home_agent = botbowl.make_bot('ga scripted')
-        home_agent.name = "GA Scripted Bot"
-        away_agent = botbowl.make_bot('scripted')
-        away_agent.name = "Scripted Bot"
-        config.debug_mode = False
-        game = botbowl.Game(i, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
-        game.config.fast_mode = True
+                wins += 1 if game.get_winning_team() is game.state.home_team else 0
+                tds += game.state.home_team.state.score
+            # Log performance
+            chromo = population[i]
+            output = f"{chromo} won {wins}/{num_games}\t"
+            avgTouchdowns = tds / num_games
+            output += f"Average own TDs per game = {avgTouchdowns}\n"
+            print(output)
+            with open(f'results/{chromo}_results.txt', 'a', encoding='utf-8') as outputFile:
+                outputFile.write(output + "\n")
 
-        print("Starting game", (i+1))
-        start = time.time()
-        game.init()
-        end = time.time()
-        print(end - start)
+            # Calculate fitness of current chromosome
+            
+            population_eval.append(ga.fitness_cal(population[i], avgTouchdowns))
 
-        wins += 1 if game.get_winning_team() is game.state.home_team else 0
-        tds += game.state.home_team.state.score
-    print(f"won {wins}/{num_games}")
-    print(f"Own TDs per game={tds/num_games}")
+        # Rest of GA
+        
+        population_eval = sorted(population_eval, key = lambda x: x[1]) # Sort by fitness
+        
+        if (population_eval[0][1] == targetVal):
+            print('Target found')
+            print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
+            break
+        print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
+        generation += 1
 
+
+        # 3.1) select best 1/2 chromosomes from current population
+        selected = ga.selection(population_eval)
+
+        # 3.2) mate parents to make new generation
+        crossovered = ga.crossover(selected)
+
+        # 3.3) mutating the childeren to diversfy the new generation
+        mutated = ga.mutate(crossovered)
+
+        # 3.4) replacement of bad population with new generation
+        # we sort here first to compare the least fit population with the most fit new_gen
+
+        # take best half of first generation and append children
+        
+        population = ga.replace(population_eval, mutated)
 
 if __name__ == "__main__":
     main()
