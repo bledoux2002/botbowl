@@ -59,7 +59,8 @@ class GAScriptedBot(ProcBot):
         self.last_half = 0
         
         self.ball_progression = 0
-        self.ball_dist = None
+        self.ball_dist = 0
+        self.ball_dist_prev = 0
         self.turnCount = 0
 
         self.off_formation = [
@@ -282,10 +283,8 @@ class GAScriptedBot(ProcBot):
         else:
             self.ball_dist = game.get_opp_endzone_x(self.my_team) - game.get_ball_position().x
 
-        if game.get_opp_endzone_x(self.my_team) == 1:
-            self.ball_progression += self.ball_dist - game.get_ball_position().x
-        else:
-            self.ball_progression += game.get_ball_position().x - self.ball_dist
+        self.ball_progression += self.ball_dist_prev - self.ball_dist
+        self.ball_dist_prev = self.ball_dist
 
         # Reset actions if new turn
         turn = game.get_agent_team(self).state.turn
@@ -802,12 +801,14 @@ class GAScriptedBot(ProcBot):
         with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
             json.dump(chromoData, chromoFile, indent=4)
 
+"""
     def ball_movement_calc(self, game, prevPos, newPos):
         top_left = Square(0, 0)
         difference = prevPos.x - newPos.x
         if game.is_team_side(top_left, self.my_team):
             difference *= -1
         return difference
+"""
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
     """
