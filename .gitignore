@@ -125,3 +125,6 @@ ENV/
 
 #Result files used by Genetic Algorithm
 /examples/results/
+
+#Storage file for Genetic Algorithm
+/examples/chromosomes.json
