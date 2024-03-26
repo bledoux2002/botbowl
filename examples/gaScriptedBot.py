@@ -12,12 +12,13 @@ from scripted_bot_example import *
 import random
 from geneticAlgorithm import *
 import json
+from datetime import datetime
 
 ## Variable randomizer
 def binaryChoice(binary, a, b):
-    if binary == 0:
+    if binary == "0": ## Chromosomes are easier to store and manipulate as strings
         return a
-    elif binary == 1:
+    elif binary == "1":
         return b
     else:
         print(f"Error with selection, defaulting to {b}")
@@ -56,6 +57,10 @@ class GAScriptedBot(ProcBot):
         self.actions = []
         self.last_turn = 0
         self.last_half = 0
+        
+        self.ball_progression = 0
+        self.ball_dist = None
+        self.turnCount = 0
 
         self.off_formation = [
             ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"],
@@ -96,35 +101,40 @@ class GAScriptedBot(ProcBot):
         self.off_formation = Formation("Wedge offense", self.off_formation)
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
+
+        ## All 1's (All True) Chromosome
+        #self.chromosome = str(111111111111111)
+                
+        ## Random Chromosome
+        #self.chromosome = str(random.getrandbits(15))
         
-        ## Genes from GA
+        ## Chromosomes from GA
         with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
-        self.geneSequence = chromoData["currentChromosome"]
-        print(self.geneSequence)
-#        geneSequence = str(random.getrandbits(15))
-#        geneSequence = str(111111111111111)
-#        self.geneSequence = str(self.gene())
-        self.coinChoice = int(self.geneSequence[0])
-        self.kickChoice = int(self.geneSequence[1])
+        self.chromosome = chromoData["currentChromosome"]
+        print(self.chromosome)
+
+        ## Assign
+        self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
+        self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
         
-        self.dodgeReroll = int(self.geneSequence[2])
-        self.pickupReroll = int(self.geneSequence[3])
-        self.passReroll = int(self.geneSequence[4])
-        self.catchReroll = int(self.geneSequence[5])
-        self.GFIReroll = int(self.geneSequence[6])
-        self.bloodlustReroll = int(self.geneSequence[7])
-        self.blockReroll = int(self.geneSequence[8])
+        self.dodgeReroll = binaryChoice(self.chromosome[2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.pickupReroll = binaryChoice(self.chromosome[3], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.passReroll = binaryChoice(self.chromosome[4], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.catchReroll = binaryChoice(self.chromosome[5], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.GFIReroll = binaryChoice(self.chromosome[6], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.bloodlustReroll = binaryChoice(self.chromosome[7], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.blockReroll = binaryChoice(self.chromosome[8], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         
         self.tdPathProb = 0.9
         
-        self.apothecaryChoice = int(self.geneSequence[9])
+        self.apothecaryChoice = binaryChoice(self.chromosome[9], ActionType.DONT_USE_APOTHECARY, ActionType.USE_APOTHECARY)
         
-        self.juggernautSkill = int(self.geneSequence[10])
-        self.wrestleSkill = int(self.geneSequence[11])
-        self.standFirmSkill = int(self.geneSequence[12])
-        self.proSkill = int(self.geneSequence[13])
-        self.useBribe = int(self.geneSequence[14])
+        self.juggernautSkill = binaryChoice(self.chromosome[10], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.wrestleSkill = binaryChoice(self.chromosome[11], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.standFirmSkill = binaryChoice(self.chromosome[12], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.proSkill = binaryChoice(self.chromosome[13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.useBribe = binaryChoice(self.chromosome[14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
 
     def new_game(self, game, team):
         """
@@ -265,6 +275,17 @@ class GAScriptedBot(ProcBot):
         # Update teams
         self.my_team = game.get_team_by_id(self.my_team.team_id)
         self.opp_team = game.get_opp_team(self.my_team)
+        
+        # Update ball progression
+        if game.get_opp_endzone_x(self.my_team) == 1:
+            self.ball_dist = game.get_ball_position().x - game.get_opp_endzone_x(self.my_team)
+        else:
+            self.ball_dist = game.get_opp_endzone_x(self.my_team) - game.get_ball_position().x
+
+        if game.get_opp_endzone_x(self.my_team) == 1:
+            self.ball_progression += self.ball_dist - game.get_ball_position().x
+        else:
+            self.ball_progression += game.get_ball_position().x - self.ball_dist
 
         # Reset actions if new turn
         turn = game.get_agent_team(self).state.turn
@@ -763,19 +784,30 @@ class GAScriptedBot(ProcBot):
         Called when a game ends.
         """
         winner = game.get_winning_team()
-        output = "Casualties: " + game.num_casualties() + "\n"
+        output = "Casualties: " + str(game.num_casualties()) + "\n"
         if winner is None:
             output += "It's a draw" + "\n"
         elif winner == self.my_team:
             output += "I ({}) won".format(self.name) + "\n"
         else:
             output += "I ({}) lost".format(self.name) + "\n"
-        output += self.my_team.state.score, "-", self.opp_team.state.score + "\n"
-        output += self.geneSequence + "\n"
+        output += str(self.my_team.state.score) + " - " + str(self.opp_team.state.score) + "\n"
+        output += self.chromosome + "\n"
         print(output)
-        with open(f'results/{self.gene}_results.txt', 'a', encoding='utf-8') as outputFile:
+        with open(f'results/{self.chromosome}_results.txt', 'a', encoding='utf-8') as outputFile:
             outputFile.write(output + "\n")
+        with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+            chromoData = json.load(chromoFile)
+            chromoData["ballProgress"] = self.ball_progression
+        with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
+            json.dump(chromoData, chromoFile, indent=4)
 
+    def ball_movement_calc(self, game, prevPos, newPos):
+        top_left = Square(0, 0)
+        difference = prevPos.x - newPos.x
+        if game.is_team_side(top_left, self.my_team):
+            difference *= -1
+        return difference
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
     """
@@ -838,20 +870,22 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 def main():
     ## GA Setup
     chromoLen = 15
-    popSize = 100
+    popSize = 10
     mutRate = 0.01
     numToSave = 0
-    targetVal = 1
+    targetVal = 100.0
     iterations = 1
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     population = ga.initialize_pop()
     found = False
     generation = 1
+    generationLimit = 10
+    bestOverall = [0, 0]
     
     # Update first chromosome to test
     with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
         chromoData = json.load(chromoFile)
-    chromoData["currentChromosome"] = population[0]
+        chromoData["currentChromosome"] = population[0]
     with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
     
@@ -868,7 +902,7 @@ def main():
     away = botbowl.load_team_by_filename("human", ruleset)
     
     # Loop until target found or generations max out
-    while not found and generation <= 10:
+    while not found and generation <= generationLimit:
         
         # List of (population, fitness) tuples
         population_eval = []
@@ -879,7 +913,7 @@ def main():
             # Update current chromosome for bot to use
             with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
                 chromoData = json.load(chromoFile)
-            chromoData["currentChromosome"] = population[i]
+                chromoData["currentChromosome"] = population[i]
             with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
@@ -887,16 +921,18 @@ def main():
             num_games = iterations
             wins = 0
             tds = 0
+            ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
             # Play x games
-            for i in range(num_games):
+            print(f"Generation {generation}, chromosome number {i + 1}, {population[i]}")
+            for j in range(num_games):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
                 away_agent = botbowl.make_bot('scripted')
                 away_agent.name = "Scripted Bot"
                 config.debug_mode = False
-                game = botbowl.Game(i, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
+                game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
                 game.config.fast_mode = True
-                print("Starting game", (i+1))
+                print("Starting game", (j+1))
                 start = time.time()
                 game.init()
                 end = time.time()
@@ -904,26 +940,33 @@ def main():
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
                 tds += game.state.home_team.state.score
+                with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+                    chromoData = json.load(chromoFile)
+                    ball_progression += chromoData["ballProgress"]
 
             # Log performance
             chromo = population[i]
             output = f"{chromo} won {wins}/{num_games}\t"
             avgTouchdowns = tds / num_games
             output += f"Average own TDs per game = {avgTouchdowns}\n"
+            avgProgression = ball_progression / num_games
+            output += f"Average ball progression per game = {avgProgression}\n"
             print(output)
             with open(f'results/{chromo}_results.txt', 'a', encoding='utf-8') as outputFile:
                 outputFile.write(output + "\n")
 
             # Calculate fitness of current chromosome
-            population_eval.append(ga.fitness_cal(population[i], avgTouchdowns))
+            population_eval.append(ga.fitness_cal(population[i], ball_progression))
 
         ## Bulk of GA
         
         # Sort by fitness
-        population_eval = sorted(population_eval, key = lambda x: x[1])
+        population_eval = sorted(population_eval, key = lambda x: x[1], reverse=True)
+        if i == 0 or population_eval[0][1] > bestOverall[1]:
+            bestOverall = population_eval[0] # For comparison, what was the best chromosome overall
         
         # Break if target met
-        if (population_eval[0][1] == targetVal):
+        if (population_eval[0][1] >= targetVal) or generation == generationLimit:
             print('Target found')
             print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
             break
@@ -941,6 +984,14 @@ def main():
 
         # Replacement of old population with new generation
         population = ga.replace(population_eval, mutated)
-
+    
+    output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
+    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
+    print(output)
+    
+    now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
+    with open(f'results/overall_results_{now}.txt', 'a', encoding='utf-8') as outputFile:
+        outputFile.write(output + "\n")
+    
 if __name__ == "__main__":
     main()

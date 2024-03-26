@@ -28,7 +28,7 @@ class GeneticAlgorithm:
 
     # Return sorted list of best half of population based on fitness
     def selection(self, population):
-        sorted_chromo_pop = sorted(population, key= lambda x: x[1]) # Sort by fitness
+        sorted_chromo_pop = sorted(population, key= lambda x: x[1], reverse=True) # Sort by fitness
         return sorted_chromo_pop[:int(0.5*self.POP_SIZE)]
 
     # Creating new population using best half of old population
@@ -53,15 +53,25 @@ class GeneticAlgorithm:
     def mutate(self, offspring):
         mutated_offspring = []
         for chromo in offspring:
+            new_chromo = ""
             for i in range(self.CHROMO_LEN):
                 if random.random() < self.MUT_RATE:
-                    chromo[i] = str(random.randint(0, 1))
-            mutated_offspring.append(chromo)
+                    if chromo[i] == "0":
+                        new_chromo += "1"
+                    elif chromo[i] == "1":
+                        new_chromo += "0"
+                    else:
+                        print("Issue mutating chromosome, using random instead")
+                        new_chromo += str(random.randint(0, 1))
+                else:
+                    new_chromo += chromo[i]
+            mutated_offspring.append(new_chromo)
         return mutated_offspring
 
     # Combine best fitted from old population and offspring into new population
     def replace(self, bestFit, mutated):
         population = list()
-        population.extend(bestFit[:self.KEEP_COUNT][0])
+        if self.KEEP_COUNT > 0:
+            population.extend(bestFit[:self.KEEP_COUNT][0])
         population.extend(mutated)
         return population
