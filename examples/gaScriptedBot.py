@@ -24,30 +24,6 @@ def binaryChoice(binary, a, b):
         print(f"Error with selection, defaulting to {b}")
         return b
 
-## GA Variables
-"""
-coinChoice = randomizeChoice(ActionType.HEADS, ActionType.TAILS)
-kickChoice = randomizeChoice(ActionType.KICK, ActionType.RECEIVE)
-
-dodgeReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-pickupReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-passReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-catchReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-GFIReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL) ## "Go For It"
-bloodlustReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-blockReroll = randomizeChoice(ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-
-tdPathProb = random.uniform(0, 1)
-
-apothecaryChoice = randomizeChoice(ActionType.DONT_USE_APOTHECARY, ActionType.USE_APOTHECARY)
-
-juggernautSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-wrestleSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-standFirmSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-proSkill = randomizeChoice(ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-useBribe = randomizeChoice(ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
-"""
-
 class GAScriptedBot(ProcBot):
 
     def __init__(self, name):
@@ -102,20 +78,23 @@ class GAScriptedBot(ProcBot):
         self.off_formation = Formation("Wedge offense", self.off_formation)
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
-
-        ## All 1's (All True) Chromosome
-        #self.chromosome = str(111111111111111)
-                
-        ## Random Chromosome
-        #self.chromosome = str(random.getrandbits(15))
         
-        ## Chromosomes from GA
         with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
-        self.chromosome = chromoData["currentChromosome"]
+
+        match chromoData["choice"]:
+            case "default":
+                ## All 1's (All True) Chromosome
+                self.chromosome = str(111111111111111)
+            case "random":
+                ## Random Chromosome
+                self.chromosome = str(random.getrandbits(15))
+            case "chromosome":
+                ## GA Chromosome
+                self.chromosome = chromoData["currentChromosome"]
+
         print(self.chromosome)
 
-        ## Assign
         self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
         self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
         
@@ -277,7 +256,7 @@ class GAScriptedBot(ProcBot):
         self.my_team = game.get_team_by_id(self.my_team.team_id)
         self.opp_team = game.get_opp_team(self.my_team)
         
-        # Update ball progression
+        ## Update ball progression
         if game.get_opp_endzone_x(self.my_team) == 1:
             self.ball_dist = game.get_ball_position().x - game.get_opp_endzone_x(self.my_team)
         else:
@@ -321,6 +300,7 @@ class GAScriptedBot(ProcBot):
         return action
 
     def _make_plan(self, game: botbowl.Game, ball_carrier):
+        #USE THIS FOR GA
         #print("1. Stand up marked players")
         for player in self.my_team.players:
             if player.position is not None and not player.state.up and not player.state.stunned and not player.state.used:
@@ -801,15 +781,6 @@ class GAScriptedBot(ProcBot):
         with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
             json.dump(chromoData, chromoFile, indent=4)
 
-"""
-    def ball_movement_calc(self, game, prevPos, newPos):
-        top_left = Square(0, 0)
-        difference = prevPos.x - newPos.x
-        if game.is_team_side(top_left, self.my_team):
-            difference *= -1
-        return difference
-"""
-
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
     """
     This function converts a path into a list of actions corresponding to that path.
@@ -870,6 +841,7 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 def main():
     ## GA Setup
+    choice = "chromosome" #default, random, or chromosome
     chromoLen = 15
     popSize = 10
     mutRate = 0.01
@@ -886,6 +858,7 @@ def main():
     # Update first chromosome to test
     with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
         chromoData = json.load(chromoFile)
+        chromoData["choice"] = choice
         chromoData["currentChromosome"] = population[0]
     with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
