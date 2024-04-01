@@ -14,6 +14,10 @@ from geneticAlgorithm import *
 import json
 from datetime import datetime
 
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
 ## Variable randomizer
 def binaryChoice(binary, a, b):
     if binary == "0": ## Chromosomes are easier to store and manipulate as strings
@@ -896,7 +900,7 @@ def main():
     ## GA Setup
     choice = "chromosome" #default, random, or chromosome
     chromoLen = 15
-    popSize = 10
+    popSize = 2
     mutRate = 0.01
     numToSave = 0
     targetVal = 100.0
@@ -905,8 +909,10 @@ def main():
     population = ga.initialize_pop()
     found = False
     generation = 1
-    generationLimit = 10
-    bestOverall = [0, 0]
+    generationLimit = 2
+    bestOverall = ["", -math.inf]
+    
+    plotFitness = []
     
     # Update first chromosome to test
     with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
@@ -950,7 +956,7 @@ def main():
             tds = 0
             ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
             # Play x games
-            print(f"Generation {generation}, chromosome number {i + 1}, {population[i]}")
+            print(f"Generation {generation}, chromosome {i + 1}, {population[i]}")
             for j in range(num_games):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
@@ -991,6 +997,9 @@ def main():
         population_eval = sorted(population_eval, key = lambda x: x[1], reverse=True)
         if i == 0 or population_eval[0][1] > bestOverall[1]:
             bestOverall = population_eval[0] # For comparison, what was the best chromosome overall
+
+        # Add fitness to be plotted
+        plotFitness.append(population_eval[0][1])
         
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
@@ -1019,6 +1028,16 @@ def main():
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
     with open(f'results/overall_results_{now}.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
-    
+
+    # Plot and save results
+    fig, ax = plt.subplots()
+    ax.plot(plotFitness)
+    ax.set_title(f"Fitness of GA Bot Over {generationLimit} Generations")
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Most Fit Chromosome")
+    fig.savefig(f'plots/ga_plot_{now}.png')
+
+#    input("Press enter to exit the program...\n")
+
 if __name__ == "__main__":
     main()
