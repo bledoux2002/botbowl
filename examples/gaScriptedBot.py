@@ -302,15 +302,67 @@ class GAScriptedBot(ProcBot):
     def _make_plan(self, game: botbowl.Game, ball_carrier):
         #USE THIS FOR GA
         #print("1. Stand up marked players")
-        for player in self.my_team.players:
+        if (self._stand_marked_players(game) == 0):
+            return
+
+        #print("2. Move ball carrier to endzone")
+        if (self._move_ball_carrier(game, ball_carrier) == 0):
+            return
+
+        #print("3. Safe blocks")
+        if (self._safe_blocks(game) == 0):
+            return
+
+        #print("4. Pickup ball")
+        if (self._pickup_ball(game) == 0):
+            return
+        
+        # Scan for unused players that are not marked
+        open_players = self._open_players(game)
+
+        #print("5. Move receivers into scoring distance if not already")
+        if (self._move_receivers(game, ball_carrier, open_players) == 0):
+            return
+
+        #print("6. Blitz with open block players")
+        if (self._blitz(game, open_players) == 0):
+            return
+
+        #print("7. Make cage around ball carrier")
+        if (self._cage_carrier(game, ball_carrier, open_players) == 0):
+            return
+
+        # Scan for assist positions
+        assist_positions = self._assist_positions(game)
+
+        #print("8. Move non-marked players to assist")
+        if (self._move_to_assist(game, open_players, assist_positions) == 0):
+            return
+
+        #print("9. Move towards the ball")
+        if (self._move_to_ball(game, ball_carrier, open_players) == 0):
+            return
+
+        #print("10. Risky blocks")
+        if (self._risky_blocks(game) == 0):
+            return
+
+        #print("11. End turn")
+        if (self.actions.append(Action(ActionType.END_TURN)) == 0):
+            return
+
+
+## Extract order of operations from _make_plan into functions
+    def _stand_marked_players(self, game):
+         for player in self.my_team.players:
             if player.position is not None and not player.state.up and not player.state.stunned and not player.state.used:
                 if game.num_tackle_zones_in(player) > 0:
                     self.actions.append(Action(ActionType.START_MOVE, player=player))
                     self.actions.append(Action(ActionType.STAND_UP))
                     #print(f"Stand up marked player {player.role.name}")
-                    return
+                    return 0
 
-        #print("2. Move ball carrier to endzone")
+    def _move_ball_carrier(self, game, ball_carrier):
         if ball_carrier is not None and ball_carrier.team == self.my_team and not ball_carrier.state.used:
             #print("2.1 Can ball carrier score with high probability")
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier, allow_team_reroll=True)
@@ -318,7 +370,7 @@ class GAScriptedBot(ProcBot):
                 self.actions.append(Action(ActionType.START_MOVE, player=ball_carrier))
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
                 #print(f"Score with ball carrier, p={td_path.prob}")
-                return
+                return 0
 
             #print("2.2 Hand-off action to scoring player")
             if game.is_handoff_available():
@@ -351,7 +403,7 @@ class GAScriptedBot(ProcBot):
                 if handoff_path is not None and (handoff_p >= 0.7 or self.my_team.state.turn == 8):
                     self.actions.append(Action(ActionType.START_HANDOFF, player=ball_carrier))
                     self.actions.extend(path_to_move_actions(game, ball_carrier, handoff_path))
-                    return
+                    return 0
 
             #print("2.3 Move safely towards the endzone")
             if game.num_tackle_zones_in(ball_carrier) == 0:
@@ -368,17 +420,17 @@ class GAScriptedBot(ProcBot):
                     self.actions.append(Action(ActionType.START_MOVE, player=ball_carrier))
                     self.actions.extend(path_to_move_actions(game, ball_carrier, best_path))
                     #print(f"Move ball carrier {ball_carrier.role.name}")
-                    return
+                    return 0
 
-        #print("3. Safe blocks")
+    def _safe_blocks(self, game):
         attacker, defender, p_self_up, p_opp_down, block_p_fumble_self, block_p_fumble_opp = self._get_safest_block(game)
         if attacker is not None and p_self_up > 0.94 and block_p_fumble_self == 0:
             self.actions.append(Action(ActionType.START_BLOCK, player=attacker))
             self.actions.append(Action(ActionType.BLOCK, position=defender.position))
             #print(f"Safe block with {attacker.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
-            return
+            return 0
 
-        #print("4. Pickup ball")
+    def _pickup_ball(self, game):
         if game.get_ball_carrier() is None:
             pickup_p = None
             pickup_player = None
@@ -411,15 +463,16 @@ class GAScriptedBot(ProcBot):
                     if best_path is not None:
                         self.actions.extend(path_to_move_actions(game, pickup_player, best_path, do_assertions=False))
                         #print(f"- Move ball carrier {pickup_player.role.name}")
-                return
+                return 0
 
-        # Scan for unused players that are not marked
+    def _open_players(self, game):
         open_players = []
         for player in self.my_team.players:
             if player.position is not None and not player.state.used and game.num_tackle_zones_in(player) == 0:
                 open_players.append(player)
+        return open_players
 
-        #print("5. Move receivers into scoring distance if not already")
+    def _move_receivers(self, game, ball_carrier, open_players):
         for player in open_players:
             if player.has_skill(Skill.CATCH) and player != ball_carrier:
                 if game.get_distance_to_endzone(player) > player.num_moves_left():
@@ -437,9 +490,9 @@ class GAScriptedBot(ProcBot):
                     self.actions.append(Action(ActionType.START_MOVE, player=player))
                     self.actions.extend(path_to_move_actions(game, player, best_path))
                     #print(f"Move receiver {player.role.name}")
-                    return
+                    return 0
 
-        #print("6. Blitz with open block players")
+    def _blitz(self, game, open_players):
         if game.is_blitz_available():
 
             best_blitz_attacker = None
@@ -470,9 +523,9 @@ class GAScriptedBot(ProcBot):
                 self.actions.append(Action(ActionType.START_BLITZ, player=best_blitz_attacker))
                 self.actions.extend(path_to_move_actions(game, best_blitz_attacker, best_blitz_path))
                 #print(f"Blitz with {best_blitz_attacker.role.name}, score={best_blitz_score}")
-                return
+                return 0
 
-        #print("7. Make cage around ball carrier")
+    def _cage_carrier(self, game, ball_carrier, open_players):
         cage_positions = [
             Square(game.get_ball_position().x - 1, game.get_ball_position().y - 1),
             Square(game.get_ball_position().x + 1, game.get_ball_position().y - 1),
@@ -494,9 +547,9 @@ class GAScriptedBot(ProcBot):
                             self.actions.append(Action(ActionType.START_MOVE, player=player))
                             self.actions.extend(path_to_move_actions(game, player, path))
                             #print(f"Make cage around towards ball carrier {player.role.name}")
-                            return
+                            return 0
 
-        # Scan for assist positions
+    def _assist_positions(self, game):
         assist_positions = set()
         for player in game.get_opp_team(self.my_team).players:
             if player.position is None or not player.state.up:
@@ -507,8 +560,9 @@ class GAScriptedBot(ProcBot):
                     for open_position in game.get_adjacent_squares(player.position, occupied=False):
                         if len(game.get_adjacent_players(open_position, team=self.opp_team, down=False)) == 1:
                             assist_positions.add(open_position)
+        return assist_positions
 
-        #print("8. Move non-marked players to assist")
+    def _move_to_assist(self, game, open_players, assist_positions):
         for player in open_players:
             for path in pf.get_all_paths(game, player):
                 if path.prob < 1.0 or path.get_last_step() not in assist_positions:
@@ -516,9 +570,9 @@ class GAScriptedBot(ProcBot):
                 self.actions.append(Action(ActionType.START_MOVE, player=player))
                 self.actions.extend(path_to_move_actions(game, player, path))
                 # print(f"Move assister {player.role.name} to {path.get_last_step().to_json}")
-                return
+                return 0
 
-        #print("9. Move towards the ball")
+    def _move_to_ball(self, game, ball_carrier, open_players):
         for player in open_players:
             if player == ball_carrier or game.num_tackle_zones_in(player) > 0:
                 continue
@@ -543,18 +597,17 @@ class GAScriptedBot(ProcBot):
                 self.actions.append(Action(ActionType.START_MOVE, player=player))
                 self.actions.extend(path_to_move_actions(game, player, path))
                 #print(f"Move towards ball {player.role.name}")
-                return
+                return 0
 
-        #print("10. Risky blocks")
+    def _risky_blocks(self, game):
         attacker, defender, p_self_up, p_opp_down, block_p_fumble_self, block_p_fumble_opp = self._get_safest_block(game)
         if attacker is not None and (p_opp_down > (1-p_self_up) or block_p_fumble_opp > 0):
             self.actions.append(Action(ActionType.START_BLOCK, player=attacker))
             self.actions.append(Action(ActionType.BLOCK, position=defender.position))
             #print(f"Block with {player.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
-            return
+            return 0
 
-        #print("11. End turn")
-        self.actions.append(Action(ActionType.END_TURN))
+## End of _make_plan() extraction
 
     def _get_safest_block(self, game):
         block_attacker = None
