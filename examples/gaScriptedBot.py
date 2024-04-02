@@ -918,7 +918,7 @@ def main():
     bestOverall = ["", -math.inf]
 
     plotFitness = [0]
-    totalTime = 0
+    totalTime = 0.0
 
     # Update first chromosome to test
     with open('data.json', 'r', encoding='utf-8') as chromoFile:
@@ -975,7 +975,7 @@ def main():
                 start = time.time()
                 game.init()
                 end = time.time()
-                totalTime += end
+                totalTime += end - start
                 print(f"Time to complete: {end - start} seconds")
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
