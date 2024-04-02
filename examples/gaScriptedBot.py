@@ -898,7 +898,7 @@ def main():
     ## GA Setup
     choice = "chromosome" #default, random, or chromosome
     chromoLen = 15
-    popSize = 100
+    popSize = 2
     mutRate = 0.01
     numToSave = 0
     targetVal = math.inf
@@ -909,12 +909,12 @@ def main():
         population = ["111111111111111"]
     found = False
     generation = 1
-    generationLimit = 100
+    generationLimit = 2
     num_games = 1
     bestOverall = ["", -math.inf]
 
     plotFitness = [0]
-    totalTime = 0
+    totalTime = 0.0
 
     # Update first chromosome to test
     with open('data.json', 'r', encoding='utf-8') as chromoFile:
@@ -971,7 +971,7 @@ def main():
                 start = time.time()
                 game.init()
                 end = time.time()
-                totalTime += end
+                totalTime += end - start
                 print(f"Time to complete: {end - start} seconds")
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
