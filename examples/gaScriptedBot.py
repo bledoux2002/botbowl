@@ -914,6 +914,7 @@ def main():
     bestOverall = ["", -math.inf]
 
     plotFitness = [0]
+    totalTime = 0
 
     # Update first chromosome to test
     with open('data.json', 'r', encoding='utf-8') as chromoFile:
@@ -970,6 +971,7 @@ def main():
                 start = time.time()
                 game.init()
                 end = time.time()
+                totalTime += end
                 print(f"Time to complete: {end - start} seconds")
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
@@ -1025,6 +1027,7 @@ def main():
 
     output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
     output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
+    output += f"Total time to execute: {totalTime}\n"
     print(output)
 
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
