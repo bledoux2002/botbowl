@@ -83,7 +83,7 @@ class GAScriptedBot(ProcBot):
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
         
-        with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+        with open('data.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
 
         match chromoData["choice"]:
@@ -97,7 +97,7 @@ class GAScriptedBot(ProcBot):
                 ## GA Chromosome
                 self.chromosome = chromoData["currentChromosome"]
 
-        print(self.chromosome)
+        #print(self.chromosome)
 
         self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
         self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
@@ -822,20 +822,20 @@ class GAScriptedBot(ProcBot):
         winner = game.get_winning_team()
         output = "Casualties: " + str(game.num_casualties()) + "\n"
         if winner is None:
-            output += "It's a draw" + "\n"
+            output += "It's a draw, "
         elif winner == self.my_team:
-            output += "I ({}) won".format(self.name) + "\n"
+            output += f"{self.name} won, "
         else:
-            output += "I ({}) lost".format(self.name) + "\n"
-        output += str(self.my_team.state.score) + " - " + str(self.opp_team.state.score) + "\n"
-        output += self.chromosome + "\n"
+            output += f"{self.name} lost, "
+        output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
+        #output += self.chromosome + "\n"
         print(output)
         with open(f'results/{self.chromosome}_results.txt', 'a', encoding='utf-8') as outputFile:
             outputFile.write(output + "\n")
-        with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+        with open('data.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
             chromoData["ballProgress"] = self.ball_progression
-        with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
+        with open('data.json', 'w', encoding='utf-8') as chromoFile:
             json.dump(chromoData, chromoFile, indent=4)
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
@@ -900,26 +900,26 @@ def main():
     ## GA Setup
     choice = "chromosome" #default, random, or chromosome
     chromoLen = 15
-    popSize = 2
+    popSize = 100
     mutRate = 0.01
     numToSave = 0
-    targetVal = 100.0
-    iterations = 1
+    targetVal = math.inf
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     population = ga.initialize_pop()
     found = False
     generation = 1
-    generationLimit = 2
+    generationLimit = 20
+    num_games = 1
     bestOverall = ["", -math.inf]
     
     plotFitness = []
     
     # Update first chromosome to test
-    with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+    with open('data.json', 'r', encoding='utf-8') as chromoFile:
         chromoData = json.load(chromoFile)
         chromoData["choice"] = choice
         chromoData["currentChromosome"] = population[0]
-    with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
+    with open('data.json', 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
     
     # Load configurations, rules, arena and teams
@@ -944,19 +944,19 @@ def main():
         for i in range (popSize):
             
             # Update current chromosome for bot to use
-            with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+            with open('data.json', 'r', encoding='utf-8') as chromoFile:
                 chromoData = json.load(chromoFile)
                 chromoData["currentChromosome"] = population[i]
-            with open('chromosomes.json', 'w', encoding='utf-8') as chromoFile:
+            with open('data.json', 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
             # Simulate games using GA bot against Scripted Bot 
-            num_games = iterations
             wins = 0
-            tds = 0
+            tdsFor = 0
+            tdsAgainst = 0
             ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
             # Play x games
-            print(f"Generation {generation}, chromosome {i + 1}, {population[i]}")
+            print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
             for j in range(num_games):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
@@ -965,31 +965,33 @@ def main():
                 config.debug_mode = False
                 game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
                 game.config.fast_mode = True
-                print("Starting game", (j+1))
+                print("Starting game ", (j + 1))
                 start = time.time()
                 game.init()
                 end = time.time()
-                print(end - start)
+                print(f"Time to complete: {end - start} seconds")
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
-                tds += game.state.home_team.state.score
-                with open('chromosomes.json', 'r', encoding='utf-8') as chromoFile:
+                tdsFor += game.state.home_team.state.score
+                tdsAgainst += game.state.away_team.state.score
+                with open('data.json', 'r', encoding='utf-8') as chromoFile:
                     chromoData = json.load(chromoFile)
                     ball_progression += chromoData["ballProgress"]
 
             # Log performance
             chromo = population[i]
-            output = f"{chromo} won {wins}/{num_games}\t"
-            avgTouchdowns = tds / num_games
-            output += f"Average own TDs per game = {avgTouchdowns}\n"
+            output = f"Won {wins} game(s) out of {num_games}\n"
+            avgTDsFor = tdsFor / num_games
+            avgTDsAgainst = tdsAgainst / num_games
+            output += f"Average score: {avgTDsFor} - {avgTDsAgainst}\n"
             avgProgression = ball_progression / num_games
             output += f"Average ball progression per game = {avgProgression}\n"
-            print(output)
-            with open(f'results/{chromo}_results.txt', 'a', encoding='utf-8') as outputFile:
-                outputFile.write(output + "\n")
 
             # Calculate fitness of current chromosome
-            population_eval.append(ga.fitness_cal(population[i], ball_progression))
+            population_eval.append(ga.fitness_cal(population[i], ball_progression, avgTDsFor, avgTDsAgainst))
+            
+            output+= f"Fitness: {population_eval[-1][1]}"
+            print(output)
 
         ## Bulk of GA
         
@@ -1003,10 +1005,9 @@ def main():
         
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
-            print('Target found')
-            print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
+            print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
             break
-        print('String: ' + str(population_eval[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population_eval[0][1]))
+        print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
         generation += 1
 
         # Select best 1/2 chromosomes from current population
@@ -1026,7 +1027,7 @@ def main():
     print(output)
     
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
-    with open(f'results/overall_results_{now}.txt', 'a', encoding='utf-8') as outputFile:
+    with open(f'results/{now}_results.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
 
     # Plot and save results
@@ -1035,7 +1036,7 @@ def main():
     ax.set_title(f"Fitness of GA Bot Over {generationLimit} Generations")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
-    fig.savefig(f'plots/ga_plot_{now}.png')
+    fig.savefig(f'results/{now}_ga_plot.png')
 
 #    input("Press enter to exit the program...\n")
 

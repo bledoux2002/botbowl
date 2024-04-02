@@ -681,7 +681,7 @@ class MyScriptedBot(ProcBot):
     def end_game(self, game):
         """
         Called when a game ends.
-        """
+        
         winner = game.get_winning_team()
         print("Casualties: ", game.num_casualties())
         if winner is None:
@@ -692,6 +692,7 @@ class MyScriptedBot(ProcBot):
         else:
             print("I ({}) lost".format(self.name))
             print(self.my_team.state.score, "-", self.opp_team.state.score)
+"""
 
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
