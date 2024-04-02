@@ -99,9 +99,9 @@ class GAScriptedBot(ProcBot):
 
         #print(self.chromosome)
 
+        # Genes 0-14
         self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
         self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
-
         self.dodgeReroll = binaryChoice(self.chromosome[2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.pickupReroll = binaryChoice(self.chromosome[3], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.passReroll = binaryChoice(self.chromosome[4], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
@@ -109,16 +109,20 @@ class GAScriptedBot(ProcBot):
         self.GFIReroll = binaryChoice(self.chromosome[6], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.bloodlustReroll = binaryChoice(self.chromosome[7], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.blockReroll = binaryChoice(self.chromosome[8], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-
-        self.tdPathProb = 0.9
-
         self.apothecaryChoice = binaryChoice(self.chromosome[9], ActionType.DONT_USE_APOTHECARY, ActionType.USE_APOTHECARY)
-
         self.juggernautSkill = binaryChoice(self.chromosome[10], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.wrestleSkill = binaryChoice(self.chromosome[11], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.standFirmSkill = binaryChoice(self.chromosome[12], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.proSkill = binaryChoice(self.chromosome[13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.useBribe = binaryChoice(self.chromosome[14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
+
+        # Genes 15-24
+        self.tdPathProb1 = float(int(self.chromosome[15:18], 2) + int(self.chromosome[18:20], 2)) / 10 #default 0.7
+        if self.tdPathProb1 > 1.0: # cap at 100%, need to change so 
+            self.tdPathProb1 = 1.0
+        self.tdPathProb2 = float(int(self.chromosome[20:23], 2) + int(self.chromosome[23:25], 2)) / 10 #default 0.9
+        if self.tdPathProb2 > 1.0:
+            self.tdPathProb2 = 1.0
 
     def new_game(self, game, team):
         """
@@ -370,7 +374,7 @@ class GAScriptedBot(ProcBot):
         if ball_carrier is not None and ball_carrier.team == self.my_team and not ball_carrier.state.used:
             #print("2.1 Can ball carrier score with high probability")
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier, allow_team_reroll=True)
-            if td_path is not None and td_path.prob >= 0.7:
+            if td_path is not None and td_path.prob >= self.tdPathProb1:
                 self.actions.append(Action(ActionType.START_MOVE, player=ball_carrier))
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
                 #print(f"Score with ball carrier, p={td_path.prob}")
@@ -650,7 +654,7 @@ class GAScriptedBot(ProcBot):
         ball_carrier = game.get_ball_carrier()
         if ball_carrier == game.get_active_player():
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier)
-            if td_path is not None and td_path.prob <= self.tdPathProb:
+            if td_path is not None and td_path.prob <= self.tdPathProb2:
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
                 #print(f"Scoring with {ball_carrier.role.name}, p={td_path.prob}")
                 return self._get_next_action()
@@ -906,7 +910,7 @@ def main():
     if (choice == "chromosome"):
         population = ga.initialize_pop()
     elif (choice == "default"):
-        population = ["111111111111111"]
+        population = ["1111111111111111110011110"]
     found = False
     generation = 1
     generationLimit = 100
