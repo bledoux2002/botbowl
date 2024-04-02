@@ -37,7 +37,7 @@ class GAScriptedBot(ProcBot):
         self.actions = []
         self.last_turn = 0
         self.last_half = 0
-        
+
         self.ball_progression = 0
         self.ball_dist = 0
         self.ball_dist_prev = 0
@@ -82,7 +82,7 @@ class GAScriptedBot(ProcBot):
         self.off_formation = Formation("Wedge offense", self.off_formation)
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
-        
+
         with open('data.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
 
@@ -101,7 +101,7 @@ class GAScriptedBot(ProcBot):
 
         self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
         self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
-        
+
         self.dodgeReroll = binaryChoice(self.chromosome[2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.pickupReroll = binaryChoice(self.chromosome[3], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.passReroll = binaryChoice(self.chromosome[4], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
@@ -109,11 +109,11 @@ class GAScriptedBot(ProcBot):
         self.GFIReroll = binaryChoice(self.chromosome[6], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.bloodlustReroll = binaryChoice(self.chromosome[7], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
         self.blockReroll = binaryChoice(self.chromosome[8], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        
+
         self.tdPathProb = 0.9
-        
+
         self.apothecaryChoice = binaryChoice(self.chromosome[9], ActionType.DONT_USE_APOTHECARY, ActionType.USE_APOTHECARY)
-        
+
         self.juggernautSkill = binaryChoice(self.chromosome[10], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.wrestleSkill = binaryChoice(self.chromosome[11], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.standFirmSkill = binaryChoice(self.chromosome[12], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
@@ -259,7 +259,7 @@ class GAScriptedBot(ProcBot):
         # Update teams
         self.my_team = game.get_team_by_id(self.my_team.team_id)
         self.opp_team = game.get_opp_team(self.my_team)
-        
+
         ## Update ball progression
         if game.get_opp_endzone_x(self.my_team) == 1:
             self.ball_dist = game.get_ball_position().x - game.get_opp_endzone_x(self.my_team)
@@ -320,7 +320,7 @@ class GAScriptedBot(ProcBot):
         #print("4. Pickup ball")
         if (self._pickup_ball(game) == 0):
             return
-        
+
         # Scan for unused players that are not marked
         open_players = self._open_players(game)
 
@@ -912,9 +912,9 @@ def main():
     generationLimit = 5
     num_games = 1
     bestOverall = ["", -math.inf]
-    
+
     plotFitness = [0]
-    
+
     # Update first chromosome to test
     with open('data.json', 'r', encoding='utf-8') as chromoFile:
         chromoData = json.load(chromoFile)
@@ -922,7 +922,7 @@ def main():
         chromoData["currentChromosome"] = population[0]
     with open('data.json', 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
-    
+
     # Load configurations, rules, arena and teams
     config = botbowl.load_config("bot-bowl")
     config.competition_mode = False
@@ -934,16 +934,16 @@ def main():
     arena = botbowl.load_arena(config.arena)
     home = botbowl.load_team_by_filename("human", ruleset)
     away = botbowl.load_team_by_filename("human", ruleset)
-    
+
     # Loop until target found or generations max out
     while not found and generation <= generationLimit:
-        
+
         # List of (population, fitness) tuples
         population_eval = []
-        
+
         # Avg performance of individual chromosomes in a pop
         for i in range (popSize):
-            
+
             # Update current chromosome for bot to use
             with open('data.json', 'r', encoding='utf-8') as chromoFile:
                 chromoData = json.load(chromoFile)
@@ -951,7 +951,7 @@ def main():
             with open('data.json', 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
-            # Simulate games using GA bot against Scripted Bot 
+            # Simulate games using GA bot against Scripted Bot
             wins = 0
             tdsFor = 0
             tdsAgainst = 0
@@ -990,12 +990,12 @@ def main():
 
             # Calculate fitness of current chromosome
             population_eval.append(ga.fitness_cal(population[i], ball_progression, avgTDsFor, avgTDsAgainst))
-            
+
             output+= f"Fitness: {population_eval[-1][1]}"
             print(output)
 
         ## Bulk of GA
-        
+
         # Sort by fitness
         population_eval = sorted(population_eval, key = lambda x: x[1], reverse=True)
         if i == 0 or population_eval[0][1] > bestOverall[1]:
@@ -1003,7 +1003,7 @@ def main():
 
         # Add fitness to be plotted
         plotFitness.append(population_eval[0][1])
-        
+
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
             print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
@@ -1022,11 +1022,11 @@ def main():
 
         # Replacement of old population with new generation
         population = ga.replace(population_eval, mutated)
-    
+
     output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
     output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
     print(output)
-    
+
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
     with open(f'results/{now}_results.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
