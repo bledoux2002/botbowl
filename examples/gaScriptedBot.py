@@ -898,7 +898,7 @@ def main():
     ## GA Setup
     choice = "chromosome" #default, random, or chromosome
     chromoLen = 15
-    popSize = 10
+    popSize = 100
     mutRate = 0.01
     numToSave = 0
     targetVal = math.inf
@@ -909,7 +909,7 @@ def main():
         population = ["111111111111111"]
     found = False
     generation = 1
-    generationLimit = 5
+    generationLimit = 100
     num_games = 1
     bestOverall = ["", -math.inf]
 
