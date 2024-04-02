@@ -89,7 +89,7 @@ class GAScriptedBot(ProcBot):
         match chromoData["choice"]:
             case "default":
                 ## All 1's (All True) Chromosome
-                self.chromosome = str(111111111111111)
+                self.chromosome = "111111111111111"
             case "random":
                 ## Random Chromosome
                 self.chromosome = str(random.getrandbits(15))
@@ -830,8 +830,6 @@ class GAScriptedBot(ProcBot):
         output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
         #output += self.chromosome + "\n"
         print(output)
-        with open(f'results/{self.chromosome}_results.txt', 'a', encoding='utf-8') as outputFile:
-            outputFile.write(output + "\n")
         with open('data.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
             chromoData["ballProgress"] = self.ball_progression
@@ -900,19 +898,22 @@ def main():
     ## GA Setup
     choice = "chromosome" #default, random, or chromosome
     chromoLen = 15
-    popSize = 100
+    popSize = 10
     mutRate = 0.01
     numToSave = 0
     targetVal = math.inf
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
-    population = ga.initialize_pop()
+    if (choice == "chromosome"):
+        population = ga.initialize_pop()
+    elif (choice == "default"):
+        population = ["111111111111111"]
     found = False
     generation = 1
-    generationLimit = 20
+    generationLimit = 5
     num_games = 1
     bestOverall = ["", -math.inf]
     
-    plotFitness = []
+    plotFitness = [0]
     
     # Update first chromosome to test
     with open('data.json', 'r', encoding='utf-8') as chromoFile:
@@ -1033,9 +1034,18 @@ def main():
     # Plot and save results
     fig, ax = plt.subplots()
     ax.plot(plotFitness)
+    ax.axhline(0, color="red")
     ax.set_title(f"Fitness of GA Bot Over {generationLimit} Generations")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
+    ax.set_xlim(0, generation)
+    ax.set_ylim(-5, 5)
+    ax.set_xticks(range(0, generation, 1))
+    yLimLower, yLimUpper = ax.get_ybound()
+    ax.set_yticks(np.arange(yLimLower, yLimUpper, 1))
+    ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
+    ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
+    ax.minorticks_on()
     fig.savefig(f'results/{now}_ga_plot.png')
 
 #    input("Press enter to exit the program...\n")
