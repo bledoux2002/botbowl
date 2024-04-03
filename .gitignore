@@ -124,7 +124,7 @@ ENV/
 /botbowl/core/pathfinding/cython_pathfinding.html
 
 #Result files used by Genetic Algorithm
-/examples/results/
+#/examples/results/
 
 #Storage file for Genetic Algorithm
 #/examples/data.json
