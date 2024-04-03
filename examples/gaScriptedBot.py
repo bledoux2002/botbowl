@@ -86,16 +86,7 @@ class GAScriptedBot(ProcBot):
         with open('data.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
 
-        match chromoData["choice"]:
-            case "default":
-                ## All 1's (All True) Chromosome
-                self.chromosome = "111111111111111"
-            case "random":
-                ## Random Chromosome
-                self.chromosome = str(random.getrandbits(15))
-            case "chromosome":
-                ## GA Chromosome
-                self.chromosome = chromoData["currentChromosome"]
+        self.chromosome = chromoData["currentChromosome"]
 
         #print(self.chromosome)
 
@@ -900,21 +891,24 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 def main():
     ## GA Setup
-    choice = "chromosome" #default, random, or chromosome
-    chromoLen = 15
-    popSize = 100
-    mutRate = 0.01
-    numToSave = 0
-    targetVal = math.inf
+    choice = "chromosome" #default, or chromosome (random is popSize 1 genLim 1)
+    chromoLen = 25                          # Size of chromosomes
+    popSize = 100                           # Number of chromosomes per generation
+    mutRate = 0.01                          # Rate of mutation in chromosomes (0.1 = 10%)
+    numToSave = 0                           # Number of best fit chromosomes to carry over between generations
+    targetVal = math.inf                    # Target value fitness trying to match
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
-    if (choice == "chromosome"):
-        population = ga.initialize_pop()
-    elif (choice == "default"):
-        population = ["1111111111111111110011110"]
-    found = False
-    generation = 1
-    generationLimit = 100
-    num_games = 1
+    match choice:
+        case "default":
+            ## Default Chromosome (mimics original scripted bot)
+            population = ["1111111111111111110011110"]
+        case "chromosome":
+            ## GA Chromosome
+            population = ga.initialize_pop()
+    found = False                           # Used if specific target value trying to be met
+    generation = 1                          # Current generation
+    generationLimit = 100                   # Number of generations to simulate
+    num_games = 1                           # Number of games to simulate per chromosome, results averaged to reduce randomness of chance
     bestOverall = ["", -math.inf]
 
     plotFitness = [0]
