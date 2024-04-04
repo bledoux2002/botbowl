@@ -1,4 +1,4 @@
-import tkinter as tk
+import tk
 import math
 
 from botbowl.core.model import Tile, TwoPlayerArena, Skill
