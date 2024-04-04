@@ -107,7 +107,7 @@ class GAScriptedBot(ProcBot):
         self.proSkill = binaryChoice(self.chromosome[13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.useBribe = binaryChoice(self.chromosome[14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
 
-        # Genes 16-65
+        # Genes 16-70
         self.tdPathLim1 = float(int(self.chromosome[15:18], 2) + int(self.chromosome[18:20], 2)) / 10 #default 0.7
         self.tdPathLim2 = float(int(self.chromosome[20:23], 2) + int(self.chromosome[23:25], 2)) / 10 #default 0.9
         self.handoffLim = float(int(self.chromosome[25:28], 2) + int(self.chromosome[28:30], 2)) / 10 #default 0.7
@@ -900,7 +900,7 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 def main():
     ## GA Setup
     choice = "chromosome" #default, or chromosome (random is popSize 1 genLim 1)
-    chromoLen = 65                          # Size of chromosomes
+    chromoLen = 70                          # Size of chromosomes
     popSize = 100                           # Number of chromosomes per generation
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.1 = 10%)
     numToSave = 0                           # Number of best fit chromosomes to carry over between generations
@@ -909,7 +909,7 @@ def main():
     match choice:
         case "default":
             ## Default Chromosome (mimics original scripted bot)
-            population = ["11111111111111111100111101110011110000000110011111110001111011111"]
+            population = ["1111111111111111110011110111001111000000011001111111000111101111111111"]
         case "chromosome":
             ## GA Chromosome
             population = ga.initialize_pop()
