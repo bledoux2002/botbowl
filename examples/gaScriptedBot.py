@@ -913,8 +913,8 @@ def main():
             ## GA Chromosome
             population = ga.initialize_pop()
     found = False                           # Used if specific target value trying to be met
-    generation = 100                          # Current generation
-    generationLimit = 2                   # Number of generations to simulate
+    generation = 1                          # Current generation
+    generationLimit = 100                   # Number of generations to simulate
     num_games = 1                           # Number of games to simulate per chromosome, results averaged to reduce randomness of chance
 #    bestOverall = ["", -math.inf]
 
