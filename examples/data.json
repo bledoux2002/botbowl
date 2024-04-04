@@ -1,4 +1,5 @@
 {
-    "currentChromosome": "101101110011000",
-    "ballProgress": -11
+    "currentChromosome": -1.4000000000000001,
+    "ballProgress": -9,
+    "choice": "chromosome"
 }

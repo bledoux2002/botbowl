@@ -28,15 +28,15 @@ class GeneticAlgorithm:
         return [chromo_from_pop, fit]
 
     # Return sorted list of best half of population based on fitness
-	"""
+    """
 	REPLACE WITH EITHER ROULETTE OR TOURNAMENT STYLE SELECTION
 	RETURNS TWO PARENTS FOR CROSSOVER, WILL BE CALLED ENOUGH TIMES TO FILL POPULATIONS
 	maybe pull some of that code into here to clean up gaScriptedBot.py?
 	roulette sounds better to me
-	"""
+    """
     def selection(self, population):
         sorted_chromo_pop = sorted(population, key= lambda x: x[1], reverse=True) # Sort by fitness
-        return sorted_chromo_pop[:int(0.1*self.POP_SIZE)]
+        return sorted_chromo_pop[:int(0.5*self.POP_SIZE)]
 
     # Creating new population using best half of old population
     def crossover(self, parents):
@@ -53,7 +53,7 @@ class GeneticAlgorithm:
 
             crossover_point = random.randint(1, self.CHROMO_LEN-1) # Random split point for parents
             child =  p1[:crossover_point] + p2[crossover_point:]
-            offspring_cross.extend([child])
+            offspring_cross.append(child)
         return offspring_cross
 
     # Apply mutations at random for *variety*
@@ -79,6 +79,7 @@ class GeneticAlgorithm:
     def replace(self, bestFit, mutated):
         population = list()
         if self.KEEP_COUNT > 0:
+            print(f"{bestFit[:]}")
             population.extend(bestFit[:self.KEEP_COUNT][0])
         population.extend(mutated)
         return population
