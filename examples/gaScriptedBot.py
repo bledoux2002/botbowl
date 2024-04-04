@@ -90,7 +90,7 @@ class GAScriptedBot(ProcBot):
 
         #print(self.chromosome)
 
-        # Genes 0-14
+        # Genes 1-15
         self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
         self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
         self.dodgeReroll = binaryChoice(self.chromosome[2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
@@ -107,13 +107,19 @@ class GAScriptedBot(ProcBot):
         self.proSkill = binaryChoice(self.chromosome[13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.useBribe = binaryChoice(self.chromosome[14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
 
-        # Genes 15-24
-        self.tdPathProb1 = float(int(self.chromosome[15:18], 2) + int(self.chromosome[18:20], 2)) / 10 #default 0.7
-        if self.tdPathProb1 > 1.0: # cap at 100%, need to change so 
-            self.tdPathProb1 = 1.0
-        self.tdPathProb2 = float(int(self.chromosome[20:23], 2) + int(self.chromosome[23:25], 2)) / 10 #default 0.9
-        if self.tdPathProb2 > 1.0:
-            self.tdPathProb2 = 1.0
+        # Genes 16-65
+        self.tdPathLim1 = float(int(self.chromosome[15:18], 2) + int(self.chromosome[18:20], 2)) / 10 #default 0.7
+        self.tdPathLim2 = float(int(self.chromosome[20:23], 2) + int(self.chromosome[23:25], 2)) / 10 #default 0.9
+        self.handoffLim = float(int(self.chromosome[25:28], 2) + int(self.chromosome[28:30], 2)) / 10 #default 0.7
+        self.blockLim = float(int(self.chromosome[30:33], 2) + int(self.chromosome[33:35], 2)) / 10 #default 0.94
+        self.fumbleLim = float(int(self.chromosome[35:38], 2) + int(self.chromosome[38:40], 2)) / 10 #default 0.0
+        self.pickupLim = float(int(self.chromosome[40:43], 2) + int(self.chromosome[43:45], 2)) / 10 #default 0.33
+        self.recPathLim = float(int(self.chromosome[45:48], 2) + int(self.chromosome[48:50], 2)) / 10 #default 1.0
+        self.blitzLim = float(int(self.chromosome[50:53], 2) + int(self.chromosome[53:55], 2)) / 5 #default 1.25
+        self.cageLim = float(int(self.chromosome[55:58], 2) + int(self.chromosome[58:60], 2)) / 10 #default 0.94
+        self.assPathLim = float(int(self.chromosome[60:63], 2) + int(self.chromosome[63:65], 2)) / 10 #default 1.0
+        self.moveLim = float(int(self.chromosome[65:68], 2) + int(self.chromosome[68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
+        
 
     def new_game(self, game, team):
         """
@@ -365,7 +371,7 @@ class GAScriptedBot(ProcBot):
         if ball_carrier is not None and ball_carrier.team == self.my_team and not ball_carrier.state.used:
             #print("2.1 Can ball carrier score with high probability")
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier, allow_team_reroll=True)
-            if td_path is not None and td_path.prob >= self.tdPathProb1:
+            if td_path is not None and td_path.prob >= self.tdPathLim1:
                 self.actions.append(Action(ActionType.START_MOVE, player=ball_carrier))
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
                 #print(f"Score with ball carrier, p={td_path.prob}")
@@ -399,7 +405,7 @@ class GAScriptedBot(ProcBot):
                         handoff_path = handoff_path
 
                 # Hand-off if high probability or last turn
-                if handoff_path is not None and (handoff_p >= 0.7 or self.my_team.state.turn == 8):
+                if handoff_path is not None and (handoff_p >= self.handoffLim or self.my_team.state.turn == 8):
                     self.actions.append(Action(ActionType.START_HANDOFF, player=ball_carrier))
                     self.actions.extend(path_to_move_actions(game, ball_carrier, handoff_path))
                     return 0
@@ -423,7 +429,7 @@ class GAScriptedBot(ProcBot):
 
     def _safe_blocks(self, game):
         attacker, defender, p_self_up, p_opp_down, block_p_fumble_self, block_p_fumble_opp = self._get_safest_block(game)
-        if attacker is not None and p_self_up > 0.94 and block_p_fumble_self == 0:
+        if attacker is not None and p_self_up > self.blockLim and block_p_fumble_self <= self.fumbleLim:
             self.actions.append(Action(ActionType.START_BLOCK, player=attacker))
             self.actions.append(Action(ActionType.BLOCK, position=defender.position))
             #print(f"Safe block with {attacker.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
@@ -444,7 +450,7 @@ class GAScriptedBot(ProcBot):
                                 pickup_p = p
                                 pickup_player = player
                                 pickup_path = path
-            if pickup_player is not None and pickup_p > 0.33:
+            if pickup_player is not None and pickup_p > self.pickupLim:
                 self.actions.append(Action(ActionType.START_MOVE, player=pickup_player))
                 self.actions.extend(path_to_move_actions(game, pickup_player, pickup_path))
                 #print(f"Pick up the ball with {pickup_player.role.name}, p={pickup_p}")
@@ -465,6 +471,7 @@ class GAScriptedBot(ProcBot):
                 return 0
 
     def _open_players(self, game):
+        # Supplementary step, needed before certain steps in _make_plan()
         open_players = []
         for player in self.my_team.players:
             if player.position is not None and not player.state.used and game.num_tackle_zones_in(player) == 0:
@@ -478,11 +485,11 @@ class GAScriptedBot(ProcBot):
                     continue
                 paths = pf.get_all_paths(game, player)
                 best_path = None
-                best_distance = 100
+                best_distance = math.inf # changed from 100 to infinity just in case field size were increased
                 target_x = game.get_opp_endzone_x(self.my_team)
                 for path in paths:
                     distance_to_endzone = abs(target_x - path.steps[-1].x)
-                    if path.prob == 1 and (best_path is None or distance_to_endzone < best_distance) and game.num_tackle_zones_at(player, path.get_last_step()):
+                    if path.prob >= self.recPathLim and (best_path is None or distance_to_endzone < best_distance) and game.num_tackle_zones_at(player, path.get_last_step()):
                         best_path = path
                         best_distance = distance_to_endzone
                 if best_path is not None:
@@ -518,7 +525,7 @@ class GAScriptedBot(ProcBot):
                             best_blitz_defender = defender
                             best_blitz_score = score
                             best_blitz_path = path
-            if best_blitz_attacker is not None and best_blitz_score >= 1.25:
+            if best_blitz_attacker is not None and best_blitz_score >= self.blitzLim:
                 self.actions.append(Action(ActionType.START_BLITZ, player=best_blitz_attacker))
                 self.actions.extend(path_to_move_actions(game, best_blitz_attacker, best_blitz_path))
                 #print(f"Blitz with {best_blitz_attacker.role.name}, score={best_blitz_score}")
@@ -542,13 +549,14 @@ class GAScriptedBot(ProcBot):
                         if game.num_tackle_zones_in(player) > 0:
                             continue
                         path = pf.get_safest_path(game, player, cage_position)
-                        if path is not None and path.prob > 0.94:
+                        if path is not None and path.prob > self.cageLim:
                             self.actions.append(Action(ActionType.START_MOVE, player=player))
                             self.actions.extend(path_to_move_actions(game, player, path))
                             #print(f"Make cage around towards ball carrier {player.role.name}")
                             return 0
 
     def _assist_positions(self, game):
+        # Supplementary step, needed before certain steps in _make_plan()
         assist_positions = set()
         for player in game.get_opp_team(self.my_team).players:
             if player.position is None or not player.state.up:
@@ -564,7 +572,7 @@ class GAScriptedBot(ProcBot):
     def _move_to_assist(self, game, open_players, assist_positions):
         for player in open_players:
             for path in pf.get_all_paths(game, player):
-                if path.prob < 1.0 or path.get_last_step() not in assist_positions:
+                if path.prob < self.assPathLim or path.get_last_step() not in assist_positions:
                     continue
                 self.actions.append(Action(ActionType.START_MOVE, player=player))
                 self.actions.extend(path_to_move_actions(game, player, path))
@@ -582,13 +590,13 @@ class GAScriptedBot(ProcBot):
             if ball_carrier is None:
                 for p in pf.get_all_paths(game, player):
                     distance = p.get_last_step().distance(game.get_ball_position())
-                    if shortest_distance is None or (p.prob == 1 and distance < shortest_distance):
+                    if shortest_distance is None or (p.prob == self.moveLim and distance < shortest_distance):
                         shortest_distance = distance
                         path = p
             elif ball_carrier.team != self.my_team:
                 for p in pf.get_all_paths(game, player):
                     distance = p.get_last_step().distance(ball_carrier.position)
-                    if shortest_distance is None or (p.prob == 1 and distance < shortest_distance):
+                    if shortest_distance is None or (p.prob == self.moveLim and distance < shortest_distance):
                         shortest_distance = distance
                         path = p
 
@@ -600,7 +608,7 @@ class GAScriptedBot(ProcBot):
 
     def _risky_blocks(self, game):
         attacker, defender, p_self_up, p_opp_down, block_p_fumble_self, block_p_fumble_opp = self._get_safest_block(game)
-        if attacker is not None and (p_opp_down > (1-p_self_up) or block_p_fumble_opp > 0):
+        if attacker is not None and (p_opp_down > (1-p_self_up) or block_p_fumble_opp > 0): #leave? seems like last option and fills rest of turn with possible actions
             self.actions.append(Action(ActionType.START_BLOCK, player=attacker))
             self.actions.append(Action(ActionType.BLOCK, position=defender.position))
             #print(f"Block with {player.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
@@ -645,7 +653,7 @@ class GAScriptedBot(ProcBot):
         ball_carrier = game.get_ball_carrier()
         if ball_carrier == game.get_active_player():
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier)
-            if td_path is not None and td_path.prob <= self.tdPathProb2:
+            if td_path is not None and td_path.prob <= self.tdPathLim2:
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
                 #print(f"Scoring with {ball_carrier.role.name}, p={td_path.prob}")
                 return self._get_next_action()
@@ -892,7 +900,7 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 def main():
     ## GA Setup
     choice = "chromosome" #default, or chromosome (random is popSize 1 genLim 1)
-    chromoLen = 25                          # Size of chromosomes
+    chromoLen = 65                          # Size of chromosomes
     popSize = 100                           # Number of chromosomes per generation
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.1 = 10%)
     numToSave = 0                           # Number of best fit chromosomes to carry over between generations
@@ -901,7 +909,7 @@ def main():
     match choice:
         case "default":
             ## Default Chromosome (mimics original scripted bot)
-            population = ["1111111111111111110011110"]
+            population = ["11111111111111111100111101110011110000000110011111110001111011111"]
         case "chromosome":
             ## GA Chromosome
             population = ga.initialize_pop()
