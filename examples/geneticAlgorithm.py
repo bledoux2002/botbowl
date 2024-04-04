@@ -79,7 +79,8 @@ class GeneticAlgorithm:
     def replace(self, bestFit, mutated):
         population = list()
         if self.KEEP_COUNT > 0:
-            print(f"{bestFit[:]}")
-            population.extend(bestFit[:self.KEEP_COUNT][0])
+#            print(f"Chromosomes to keep: {bestFit[:self.KEEP_COUNT[0]]}. Fitnesses: {bestFit[:self.KEEP_COUNT[1]]}")
+            for i in range (self.KEEP_COUNT):
+                population.append(bestFit[i][0])
         population.extend(mutated)
         return population
