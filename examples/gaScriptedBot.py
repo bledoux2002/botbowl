@@ -119,7 +119,6 @@ class GAScriptedBot(ProcBot):
         self.cageLim = float(int(self.chromosome[55:58], 2) + int(self.chromosome[58:60], 2)) / 10 #default 0.94
         self.assPathLim = float(int(self.chromosome[60:63], 2) + int(self.chromosome[63:65], 2)) / 10 #default 1.0
         self.moveLim = float(int(self.chromosome[65:68], 2) + int(self.chromosome[68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
-        
 
     def new_game(self, game, team):
         """
@@ -903,7 +902,7 @@ def main():
     chromoLen = 70                          # Size of chromosomes
     popSize = 100                           # Number of chromosomes per generation
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.1 = 10%)
-    numToSave = 0                           # Number of best fit chromosomes to carry over between generations
+    numToSave = 1                           # Number of best fit chromosomes to carry over between generations
     targetVal = math.inf                    # Target value fitness trying to match
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     match choice:
@@ -917,7 +916,7 @@ def main():
     generation = 1                          # Current generation
     generationLimit = 100                   # Number of generations to simulate
     num_games = 1                           # Number of games to simulate per chromosome, results averaged to reduce randomness of chance
-    bestOverall = ["", -math.inf]
+#    bestOverall = ["", -math.inf]
 
     plotFitness = [0]
     totalTime = 0.0
@@ -1006,8 +1005,8 @@ def main():
 
         # Sort by fitness
         population_eval = sorted(population_eval, key = lambda x: x[1], reverse=True)
-        if i == 0 or population_eval[0][1] > bestOverall[1]:
-            bestOverall = population_eval[0] # For comparison, what was the best chromosome overall
+#        if i == 0 or population_eval[0][1] > bestOverall[1]:
+#            bestOverall = population_eval[0] # For comparison, what was the best chromosome overall
 
         # Add fitness to be plotted
         plotFitness.append(population_eval[0][1])
@@ -1032,7 +1031,7 @@ def main():
         population = ga.replace(population_eval, mutated)
 
     output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
-    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
+#    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
     output += f"Total time to execute: {totalTime}\n"
 #    print(output)
 
