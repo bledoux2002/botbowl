@@ -902,7 +902,7 @@ def main():
     chromoLen = 70                          # Size of chromosomes
     popSize = 2                           # Number of chromosomes per generation
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.1 = 10%)
-    numToSave = 1                           # Number of best fit chromosomes to carry over between generations
+    numToSave = 0                           # Number of best fit chromosomes to carry over between generations
     targetVal = math.inf                    # Target value fitness trying to match
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     match choice:
