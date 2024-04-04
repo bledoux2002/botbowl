@@ -2,9 +2,9 @@
 ## Benjamin Ledoux, created 03/04/2024 1:34 PM, last editted 03/04/2024 x:xx PM
 
 import random
-    
+
 class GeneticAlgorithm:
-    
+
     def __init__(self, chromoLen = 15, popSize = 100, mutRate = 0.01, keepCount = 0, targetVal = 1):
         self.CHROMO_LEN = chromoLen # Length of chromosome (num of genes)
         self.POP_SIZE = popSize # Size of population (num of chromosomes)
@@ -28,9 +28,15 @@ class GeneticAlgorithm:
         return [chromo_from_pop, fit]
 
     # Return sorted list of best half of population based on fitness
+	"""
+	REPLACE WITH EITHER ROULETTE OR TOURNAMENT STYLE SELECTION
+	RETURNS TWO PARENTS FOR CROSSOVER, WILL BE CALLED ENOUGH TIMES TO FILL POPULATIONS
+	maybe pull some of that code into here to clean up gaScriptedBot.py?
+	roulette sounds better to me
+	"""
     def selection(self, population):
         sorted_chromo_pop = sorted(population, key= lambda x: x[1], reverse=True) # Sort by fitness
-        return sorted_chromo_pop[:int(0.5*self.POP_SIZE)]
+        return sorted_chromo_pop[:int(0.1*self.POP_SIZE)]
 
     # Creating new population using best half of old population
     def crossover(self, parents):
@@ -62,7 +68,7 @@ class GeneticAlgorithm:
                     elif chromo[i] == "1":
                         new_chromo += "0"
                     else:
-                        print("Issue mutating chromosome, using random instead")
+#                        print("Issue mutating chromosome, using random instead")
                         new_chromo += str(random.randint(0, 1))
                 else:
                     new_chromo += chromo[i]

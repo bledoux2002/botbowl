@@ -25,7 +25,7 @@ def binaryChoice(binary, a, b):
     elif binary == "1":
         return b
     else:
-        print(f"Error with selection, defaulting to {b}")
+#        print(f"Error with selection, defaulting to {b}")
         return b
 
 class GAScriptedBot(ProcBot):
@@ -832,7 +832,7 @@ class GAScriptedBot(ProcBot):
             output += f"{self.name} lost, "
         output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
         #output += self.chromosome + "\n"
-        print(output)
+#        print(output)
         with open('data.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
             chromoData["ballProgress"] = self.ball_progression
@@ -964,7 +964,7 @@ def main():
             tdsAgainst = 0
             ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
             # Play x games
-            print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
+#            print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
             for j in range(num_games):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
@@ -973,12 +973,12 @@ def main():
                 config.debug_mode = False
                 game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
                 game.config.fast_mode = True
-                print("Starting game ", (j + 1))
+#                print("Starting game ", (j + 1))
                 start = time.time()
                 game.init()
                 end = time.time()
                 totalTime += end - start
-                print(f"Time to complete: {end - start} seconds")
+#                print(f"Time to complete: {end - start} seconds")
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
                 tdsFor += game.state.home_team.state.score
@@ -1000,7 +1000,7 @@ def main():
             population_eval.append(ga.fitness_cal(population[i], ball_progression, avgTDsFor, avgTDsAgainst))
 
             output+= f"Fitness: {population_eval[-1][1]}"
-            print(output)
+#            print(output)
 
         ## Bulk of GA
 
@@ -1014,9 +1014,9 @@ def main():
 
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
-            print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
+#            print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
             break
-        print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
+#        print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
         generation += 1
 
         # Select best 1/2 chromosomes from current population
@@ -1034,7 +1034,7 @@ def main():
     output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
     output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
     output += f"Total time to execute: {totalTime}\n"
-    print(output)
+#    print(output)
 
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
     with open(f'results/{now}_results.txt', 'a', encoding='utf-8') as outputFile:
