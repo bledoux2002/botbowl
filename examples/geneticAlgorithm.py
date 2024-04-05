@@ -36,7 +36,7 @@ class GeneticAlgorithm:
     """
     def selection(self, population):
         sorted_chromo_pop = sorted(population, key= lambda x: x[1], reverse=True) # Sort by fitness
-        return sorted_chromo_pop[:int(0.5*self.POP_SIZE)]
+        return sorted_chromo_pop[:int(0.1*self.POP_SIZE)]
 
     # Creating new population using best half of old population
     def crossover(self, parents):

@@ -9,6 +9,7 @@ import math
 from botbowl.core.pathfinding.python_pathfinding import Path  # Only used for type checker
 
 from scripted_bot_example import *
+from random_bot_example import *
 import random
 from geneticAlgorithm import *
 import json
@@ -17,6 +18,7 @@ from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import argparse
 
 ## Variable randomizer
 def binaryChoice(binary, a, b):
@@ -896,26 +898,26 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
 botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
-def main():
+def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1):
     ## GA Setup
-    choice = "chromosome" #default, or chromosome (random is popSize 1 genLim 1)
-    chromoLen = 70                          # Size of chromosomes
-    popSize = 100                           # Number of chromosomes per generation
-    mutRate = 0.01                          # Rate of mutation in chromosomes (0.1 = 10%)
-    numToSave = 1                           # Number of best fit chromosomes to carry over between generations
+    choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
+    chromoLen = 70                          # Size of chromosomes, (70)
+    popSize = popSizeIn                     # Number of chromosomes per generation (100)
+    mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
+    numToSave = numToSaveIn                 # Number of best fit chromosomes to carry over between generations (1)
     targetVal = math.inf                    # Target value fitness trying to match
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     match choice:
-        case "default":
+        case "d":
             ## Default Chromosome (mimics original scripted bot)
             population = ["1111111111111111110011110111001111000000011001111111000111101111111111"]
-        case "chromosome":
+        case "c":
             ## GA Chromosome
             population = ga.initialize_pop()
     found = False                           # Used if specific target value trying to be met
     generation = 1                          # Current generation
-    generationLimit = 100                   # Number of generations to simulate
-    num_games = 1                           # Number of games to simulate per chromosome, results averaged to reduce randomness of chance
+    generationLimit = genLimIn              # Number of generations to simulate (100)
+    numGames = numGamesIn                   # Number of games to simulate per chromosome, results averaged to reduce randomness of chance (1)
 #    bestOverall = ["", -math.inf]
 
     plotFitness = [0]
@@ -964,11 +966,11 @@ def main():
             ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
             # Play x games
             print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
-            for j in range(num_games):
+            for j in range(numGames):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
-                away_agent = botbowl.make_bot('scripted')
-                away_agent.name = "Scripted Bot"
+                away_agent = botbowl.make_bot('random') #scripted
+                away_agent.name = "Random Bot" #Scripted Bot
                 config.debug_mode = False
                 game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
                 game.config.fast_mode = True
@@ -988,11 +990,11 @@ def main():
 
             # Log performance
             #chromo = population[i]
-            output = f"Won {wins} game(s) out of {num_games}\n"
-            avgTDsFor = tdsFor / num_games
-            avgTDsAgainst = tdsAgainst / num_games
+            output = f"Won {wins} game(s) out of {numGames}\n"
+            avgTDsFor = tdsFor / numGames
+            avgTDsAgainst = tdsAgainst / numGames
             output += f"Average score: {avgTDsFor} - {avgTDsAgainst}\n"
-            avgProgression = ball_progression / num_games
+            avgProgression = ball_progression / numGames
             output += f"Average ball progression per game = {avgProgression}\n"
 
             # Calculate fitness of current chromosome
@@ -1059,4 +1061,17 @@ def main():
 #    input("Press enter to exit the program...\n")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--choice", required=False, type=str, default="c", help="c - chromosome; d - default")
+    parser.add_argument("--popSize", required=False, type=int, default=100)
+    parser.add_argument("--numSave", required=False, type=int, default=1)
+    parser.add_argument("--genLim", required=False, type=int, default=100)
+    parser.add_argument("--numGames", required=False, type=int, default=1)
+    args = parser.parse_args()
+    choice = args.choice
+    popSize = args.popSize
+    numSave = args.numSave
+    genLim = args.genLim
+    numGames = args.numGames
+    print(f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}")
+    main(choice, popSize, numSave, genLim, numGames)
