@@ -1,3 +1,0 @@
-0010000011010011011111110101011000011001011011111110111110001000101110 was the strongest candidate over 2 generations, with a fitness score of 0.0.
-Total time to execute: 5.457195043563843
-

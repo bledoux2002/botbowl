@@ -1,3 +1,0 @@
-101111010011010 was the strongest candidate over 20 generations, with a fitness score of 1.9.
-000011010111110 was the best candidate detected throughout the generations, with a fitness score of 3.2.
-
