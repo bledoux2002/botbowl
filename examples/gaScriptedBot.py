@@ -87,9 +87,10 @@ class GAScriptedBot(ProcBot):
 
         with open('thread.json', 'r', encoding='utf-8') as dataFile:
             data = json.load(dataFile)
+            thread = data["thread"]
 
-        self.filename = f"data_{data["thread"]}.json"
-        print(filename)
+        self.filename = f"data_{thread}.json"
+#        print(self.filename)
 
         with open(self.filename, 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
@@ -940,8 +941,9 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         json.dump(thread, threadFile, indent = 4)
 
     # Update first chromosome to test
-    filename = f"data_{thread["thread"]}.json"
-    print(filename)
+    threadNum = thread["thread"]
+    filename = f"data_{threadNum}.json"
+#    print(filename)
     with open (filename, 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
 
