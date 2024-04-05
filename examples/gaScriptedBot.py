@@ -84,12 +84,12 @@ class GAScriptedBot(ProcBot):
         self.off_formation = Formation("Wedge offense", self.off_formation)
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
-        
+
         with open('thread.json', 'r', encoding='utf-8') as dataFile:
             data = json.load(dataFile)
 
-
-        self.filename = f'data_{data["thread"]}.json'
+        self.filename = f"data_{data["thread"]}.json"
+        print(filename)
 
         with open(self.filename, 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
@@ -935,12 +935,12 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
     plotFitness = [0]
     totalTime = 0.0
-    
+
     with open('thread.json', 'w', encoding='utf-8') as threadFile:
         json.dump(thread, threadFile, indent = 4)
 
     # Update first chromosome to test
-    filename = f'data_{thread}.json'
+    filename = f"data_{thread["thread"]}.json"
     print(filename)
     with open (filename, 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
