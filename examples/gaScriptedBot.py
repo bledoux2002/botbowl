@@ -926,14 +926,21 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     numGames = numGamesIn                   # Number of games to simulate per chromosome, results averaged to reduce randomness of chance (1)
 #    bestOverall = ["", -math.inf]
 
-    thread = threadIn
+    chromoData = {
+        "currentChromosome" : population[0],
+        "ballProgress" : 0
+    }
+
+    thread = {"thread" : threadIn}
 
     plotFitness = [0]
     totalTime = 0.0
+    
+    with open('thread.json', 'w', encoding='utf-8') as threadFile:
+        json.dump(thread, threadFile, indent = 4)
 
     # Update first chromosome to test
     with open (f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
-        chromoData = {"currentChromosome" : population[0], "ballProgress" : 0}
         json.dump(chromoData, chromoFile, indent = 4)
 
     # Load configurations, rules, arena and teams
@@ -958,9 +965,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         for i in range (popSize):
 
             # Update current chromosome for bot to use
-            with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
-                chromoData = json.load(chromoFile)
-                chromoData["currentChromosome"] = population[i]
+            chromoData["currentChromosome"] = population[i]
             with open(f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
@@ -990,7 +995,8 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
                 tdsFor += game.state.home_team.state.score
                 tdsAgainst += game.state.away_team.state.score
                 with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
-                    chromoData = json.load(chromoFile)
+                    data = json.load(chromoFile)
+                    chromoData["ballProgress"] = data["ballProgress"]
                     ball_progression += chromoData["ballProgress"]
 
             # Log performance
@@ -1072,7 +1078,7 @@ if __name__ == "__main__":
     parser.add_argument("--numSave", required=False, type=int, default=1)
     parser.add_argument("--genLim", required=False, type=int, default=100)
     parser.add_argument("--numGames", required=False, type=int, default=1)
-    parser.add_argument("--thread", required=False, type=int, default = None)
+    parser.add_argument("--thread", required=False, type=int, default = 0)
     args = parser.parse_args()
     choice = args.choice
     popSize = args.popSize
