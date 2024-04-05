@@ -933,12 +933,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
     # Update first chromosome to test
     with open (f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
-        chromoData = {"currentChromosome" : None, "ballProgress" : None}
-        json.dump(chromoData, chromoFile, indent = 4)
-    with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
-        chromoData = json.load(chromoFile)
-        chromoData["currentChromosome"] = population[0]
-    with open(f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
+        chromoData = {"currentChromosome" : population[0], "ballProgress" : 0}
         json.dump(chromoData, chromoFile, indent = 4)
 
     # Load configurations, rules, arena and teams

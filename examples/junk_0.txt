@@ -1,0 +1,5 @@
+Choice: c, Population Size: 100, Elitism: 1, Generations: 100, Games per Chromosome: 1, Thread: None
+
+GENERATION 1 CHROMOSOME 1:	1001111100010000011110101010101011010101010010000110100000011001010010
+Starting game  1
+Time to complete: 8.01635217666626 seconds
