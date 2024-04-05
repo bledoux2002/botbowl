@@ -127,7 +127,7 @@ ENV/
 /examples/results/
 
 #Storage file for Genetic Algorithm
-#/examples/data.json
+/examples/data_*.json
 
 #Zip files
 .zip

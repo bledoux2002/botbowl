@@ -84,8 +84,14 @@ class GAScriptedBot(ProcBot):
         self.off_formation = Formation("Wedge offense", self.off_formation)
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
+        
+        with open('thread.json', 'r', encoding='utf-8') as dataFile:
+            data = json.load(dataFile)
 
-        with open('data.json', 'r', encoding='utf-8') as chromoFile:
+
+        self.thread = data["thread"]
+
+        with open(f'data_{self.thread}.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
 
         self.chromosome = chromoData["currentChromosome"]
@@ -834,10 +840,10 @@ class GAScriptedBot(ProcBot):
         output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
         #output += self.chromosome + "\n"
 #        print(output)
-        with open('data.json', 'r', encoding='utf-8') as chromoFile:
+        with open(f'data_{self.thread}.json', 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
             chromoData["ballProgress"] = self.ball_progression
-        with open('data.json', 'w', encoding='utf-8') as chromoFile:
+        with open(f'data_{self.thread}.json', 'w', encoding='utf-8') as chromoFile:
             json.dump(chromoData, chromoFile, indent=4)
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
@@ -898,7 +904,7 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
 botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
-def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1):
+def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
     ## GA Setup
     choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
     chromoLen = 70                          # Size of chromosomes, (70)
@@ -920,15 +926,19 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     numGames = numGamesIn                   # Number of games to simulate per chromosome, results averaged to reduce randomness of chance (1)
 #    bestOverall = ["", -math.inf]
 
+    thread = threadIn
+
     plotFitness = [0]
     totalTime = 0.0
 
     # Update first chromosome to test
-    with open('data.json', 'r', encoding='utf-8') as chromoFile:
+    with open (f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
+        chromoData = {"currentChromosome" : None, "ballProgress" : None}
+        json.dump(chromoData, chromoFile, indent = 4)
+    with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
         chromoData = json.load(chromoFile)
-        chromoData["choice"] = choice
         chromoData["currentChromosome"] = population[0]
-    with open('data.json', 'w', encoding='utf-8') as chromoFile:
+    with open(f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
 
     # Load configurations, rules, arena and teams
@@ -953,10 +963,10 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         for i in range (popSize):
 
             # Update current chromosome for bot to use
-            with open('data.json', 'r', encoding='utf-8') as chromoFile:
+            with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
                 chromoData = json.load(chromoFile)
                 chromoData["currentChromosome"] = population[i]
-            with open('data.json', 'w', encoding='utf-8') as chromoFile:
+            with open(f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
             # Simulate games using GA bot against Scripted Bot
@@ -984,7 +994,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
                 tdsFor += game.state.home_team.state.score
                 tdsAgainst += game.state.away_team.state.score
-                with open('data.json', 'r', encoding='utf-8') as chromoFile:
+                with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
                     chromoData = json.load(chromoFile)
                     ball_progression += chromoData["ballProgress"]
 
@@ -1067,11 +1077,13 @@ if __name__ == "__main__":
     parser.add_argument("--numSave", required=False, type=int, default=1)
     parser.add_argument("--genLim", required=False, type=int, default=100)
     parser.add_argument("--numGames", required=False, type=int, default=1)
+    parser.add_argument("--thread", required=False, type=int, default = None)
     args = parser.parse_args()
     choice = args.choice
     popSize = args.popSize
     numSave = args.numSave
     genLim = args.genLim
     numGames = args.numGames
-    print(f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}")
-    main(choice, popSize, numSave, genLim, numGames)
+    thread = args.thread
+    print(f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}, Thread: {thread}")
+    main(choice, popSize, numSave, genLim, numGames, thread)
