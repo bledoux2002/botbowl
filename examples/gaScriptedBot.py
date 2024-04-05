@@ -89,9 +89,9 @@ class GAScriptedBot(ProcBot):
             data = json.load(dataFile)
 
 
-        self.thread = data["thread"]
+        self.filename = f'data_{data["thread"]}.json'
 
-        with open(f'data_{self.thread}.json', 'r', encoding='utf-8') as chromoFile:
+        with open(self.filename, 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
 
         self.chromosome = chromoData["currentChromosome"]
@@ -840,10 +840,10 @@ class GAScriptedBot(ProcBot):
         output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
         #output += self.chromosome + "\n"
 #        print(output)
-        with open(f'data_{self.thread}.json', 'r', encoding='utf-8') as chromoFile:
+        with open(self.filename, 'r', encoding='utf-8') as chromoFile:
             chromoData = json.load(chromoFile)
             chromoData["ballProgress"] = self.ball_progression
-        with open(f'data_{self.thread}.json', 'w', encoding='utf-8') as chromoFile:
+        with open(self.filename, 'w', encoding='utf-8') as chromoFile:
             json.dump(chromoData, chromoFile, indent=4)
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
@@ -940,7 +940,9 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         json.dump(thread, threadFile, indent = 4)
 
     # Update first chromosome to test
-    with open (f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
+    filename = f'data_{thread}.json'
+    print(filename)
+    with open (filename, 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
 
     # Load configurations, rules, arena and teams
@@ -966,7 +968,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
             # Update current chromosome for bot to use
             chromoData["currentChromosome"] = population[i]
-            with open(f'data_{thread}.json', 'w', encoding='utf-8') as chromoFile:
+            with open(filename, 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
             # Simulate games using GA bot against Scripted Bot
@@ -994,7 +996,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
                 tdsFor += game.state.home_team.state.score
                 tdsAgainst += game.state.away_team.state.score
-                with open(f'data_{thread}.json', 'r', encoding='utf-8') as chromoFile:
+                with open(filename, 'r', encoding='utf-8') as chromoFile:
                     data = json.load(chromoFile)
                     chromoData["ballProgress"] = data["ballProgress"]
                     ball_progression += chromoData["ballProgress"]
