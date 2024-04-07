@@ -1063,7 +1063,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
     ax.set_xlim(0, generation)
-    yLim = abs(population_eval[0][0])
+    yLim = abs(population_eval[0][1])
     ax.set_ylim(-yLim, yLim)
     xTicks = generation // 10
     ax.set_xticks(range(0, generation, xTicks))
