@@ -1045,6 +1045,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         # Replacement of old population with new generation
         population = ga.replace(population_eval, mutated)
 
+
     output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
 #    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
     output += f"Total time to execute: {totalTime}\n"
@@ -1062,10 +1063,12 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
     ax.set_xlim(0, generation)
-    ax.set_ylim(-5, 5)
-    ax.set_xticks(range(0, generation, 1))
+    yLim = abs(population_eval[0][0]
+    ax.set_ylim(-yLim, yLim)
+    xTicks = generation // 10
+    ax.set_xticks(range(0, generation, xTicks))
     yLimLower, yLimUpper = ax.get_ybound()
-    ax.set_yticks(np.arange(yLimLower, yLimUpper, 1))
+    ax.set_yticks(np.arange(yLimLower, yLimUpper, yLim // 5))
     ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
     ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
     ax.minorticks_on()
