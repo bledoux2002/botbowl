@@ -40,7 +40,6 @@ class GAScriptedBot(ProcBot):
         self.last_turn = 0
         self.last_half = 0
 
-        self.ball_progression = 0
         self.ball_dist = 0
         self.ball_dist_prev = 0
         self.turnCount = 0
@@ -92,42 +91,44 @@ class GAScriptedBot(ProcBot):
         self.filename = f"data_{thread}.json"
 #        print(self.filename)
 
+        self.chromoData = {
+            "currentChromosome" : 0,
+            "ballProgress" : 0
+        }
         with open(self.filename, 'r', encoding='utf-8') as chromoFile:
-            chromoData = json.load(chromoFile)
+            self.chromoData = json.load(chromoFile)
 
-        self.chromosome = chromoData["currentChromosome"]
-
-        #print(self.chromosome)
+        #print(self.chromoData["currentChromosome"])
 
         # Genes 1-15
-        self.coinChoice = binaryChoice(self.chromosome[0], ActionType.HEADS, ActionType.TAILS)
-        self.kickChoice = binaryChoice(self.chromosome[1], ActionType.KICK, ActionType.RECEIVE)
-        self.dodgeReroll = binaryChoice(self.chromosome[2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.pickupReroll = binaryChoice(self.chromosome[3], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.passReroll = binaryChoice(self.chromosome[4], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.catchReroll = binaryChoice(self.chromosome[5], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.GFIReroll = binaryChoice(self.chromosome[6], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.bloodlustReroll = binaryChoice(self.chromosome[7], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.blockReroll = binaryChoice(self.chromosome[8], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
-        self.apothecaryChoice = binaryChoice(self.chromosome[9], ActionType.DONT_USE_APOTHECARY, ActionType.USE_APOTHECARY)
-        self.juggernautSkill = binaryChoice(self.chromosome[10], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-        self.wrestleSkill = binaryChoice(self.chromosome[11], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-        self.standFirmSkill = binaryChoice(self.chromosome[12], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-        self.proSkill = binaryChoice(self.chromosome[13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
-        self.useBribe = binaryChoice(self.chromosome[14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
+        self.coinChoice = binaryChoice(self.chromoData["currentChromosome"][0], ActionType.HEADS, ActionType.TAILS)
+        self.kickChoice = binaryChoice(self.chromoData["currentChromosome"][1], ActionType.KICK, ActionType.RECEIVE)
+        self.dodgeReroll = binaryChoice(self.chromoData["currentChromosome"][2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.pickupReroll = binaryChoice(self.chromoData["currentChromosome"][3], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.passReroll = binaryChoice(self.chromoData["currentChromosome"][4], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.catchReroll = binaryChoice(self.chromoData["currentChromosome"][5], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.GFIReroll = binaryChoice(self.chromoData["currentChromosome"][6], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.bloodlustReroll = binaryChoice(self.chromoData["currentChromosome"][7], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.blockReroll = binaryChoice(self.chromoData["currentChromosome"][8], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
+        self.apothecaryChoice = binaryChoice(self.chromoData["currentChromosome"][9], ActionType.DONT_USE_APOTHECARY, ActionType.USE_APOTHECARY)
+        self.juggernautSkill = binaryChoice(self.chromoData["currentChromosome"][10], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.wrestleSkill = binaryChoice(self.chromoData["currentChromosome"][11], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.standFirmSkill = binaryChoice(self.chromoData["currentChromosome"][12], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.proSkill = binaryChoice(self.chromoData["currentChromosome"][13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
+        self.useBribe = binaryChoice(self.chromoData["currentChromosome"][14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
 
         # Genes 16-70
-        self.tdPathLim1 = float(int(self.chromosome[15:18], 2) + int(self.chromosome[18:20], 2)) / 10 #default 0.7
-        self.tdPathLim2 = float(int(self.chromosome[20:23], 2) + int(self.chromosome[23:25], 2)) / 10 #default 0.9
-        self.handoffLim = float(int(self.chromosome[25:28], 2) + int(self.chromosome[28:30], 2)) / 10 #default 0.7
-        self.blockLim = float(int(self.chromosome[30:33], 2) + int(self.chromosome[33:35], 2)) / 10 #default 0.94
-        self.fumbleLim = float(int(self.chromosome[35:38], 2) + int(self.chromosome[38:40], 2)) / 10 #default 0.0
-        self.pickupLim = float(int(self.chromosome[40:43], 2) + int(self.chromosome[43:45], 2)) / 10 #default 0.33
-        self.recPathLim = float(int(self.chromosome[45:48], 2) + int(self.chromosome[48:50], 2)) / 10 #default 1.0
-        self.blitzLim = float(int(self.chromosome[50:53], 2) + int(self.chromosome[53:55], 2)) / 5 #default 1.25
-        self.cageLim = float(int(self.chromosome[55:58], 2) + int(self.chromosome[58:60], 2)) / 10 #default 0.94
-        self.assPathLim = float(int(self.chromosome[60:63], 2) + int(self.chromosome[63:65], 2)) / 10 #default 1.0
-        self.moveLim = float(int(self.chromosome[65:68], 2) + int(self.chromosome[68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
+        self.tdPathLim1 = float(int(self.chromoData["currentChromosome"][15:18], 2) + int(self.chromoData["currentChromosome"][18:20], 2)) / 10 #default 0.7
+        self.tdPathLim2 = float(int(self.chromoData["currentChromosome"][20:23], 2) + int(self.chromoData["currentChromosome"][23:25], 2)) / 10 #default 0.9
+        self.handoffLim = float(int(self.chromoData["currentChromosome"][25:28], 2) + int(self.chromoData["currentChromosome"][28:30], 2)) / 10 #default 0.7
+        self.blockLim = float(int(self.chromoData["currentChromosome"][30:33], 2) + int(self.chromoData["currentChromosome"][33:35], 2)) / 10 #default 0.94
+        self.fumbleLim = float(int(self.chromoData["currentChromosome"][35:38], 2) + int(self.chromoData["currentChromosome"][38:40], 2)) / 10 #default 0.0
+        self.pickupLim = float(int(self.chromoData["currentChromosome"][40:43], 2) + int(self.chromoData["currentChromosome"][43:45], 2)) / 10 #default 0.33
+        self.recPathLim = float(int(self.chromoData["currentChromosome"][45:48], 2) + int(self.chromoData["currentChromosome"][48:50], 2)) / 10 #default 1.0
+        self.blitzLim = float(int(self.chromoData["currentChromosome"][50:53], 2) + int(self.chromoData["currentChromosome"][53:55], 2)) / 5 #default 1.25
+        self.cageLim = float(int(self.chromoData["currentChromosome"][55:58], 2) + int(self.chromoData["currentChromosome"][58:60], 2)) / 10 #default 0.94
+        self.assPathLim = float(int(self.chromoData["currentChromosome"][60:63], 2) + int(self.chromoData["currentChromosome"][63:65], 2)) / 10 #default 1.0
+        self.moveLim = float(int(self.chromoData["currentChromosome"][65:68], 2) + int(self.chromoData["currentChromosome"][68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
 
     def new_game(self, game, team):
         """
@@ -275,7 +276,7 @@ class GAScriptedBot(ProcBot):
         else:
             self.ball_dist = game.get_opp_endzone_x(self.my_team) - game.get_ball_position().x
 
-        self.ball_progression += self.ball_dist_prev - self.ball_dist
+        self.chromoData["ballProgress"] += self.ball_dist_prev - self.ball_dist
         self.ball_dist_prev = self.ball_dist
 
         # Reset actions if new turn
@@ -839,13 +840,10 @@ class GAScriptedBot(ProcBot):
         else:
             output += f"{self.name} lost, "
         output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
-        #output += self.chromosome + "\n"
+        #output += self.chromoData["currentChromosome"] + "\n"
 #        print(output)
-        with open(self.filename, 'r', encoding='utf-8') as chromoFile:
-            chromoData = json.load(chromoFile)
-            chromoData["ballProgress"] = self.ball_progression
         with open(self.filename, 'w', encoding='utf-8') as chromoFile:
-            json.dump(chromoData, chromoFile, indent=4)
+            json.dump(self.chromoData, chromoFile, indent=4)
 
 def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path, do_assertions=True) -> List[Action]:
     """
