@@ -92,12 +92,12 @@ class GAScriptedBot(ProcBot):
 #        print(self.filename)
 
         self.chromoData = {
-            "currentChromosome" : 0,
-            "ballProgress" : 0
+            "currentChromosome" : None,
+            "ballProgress" : None
         }
         with open(self.filename, 'r', encoding='utf-8') as chromoFile:
             self.chromoData = json.load(chromoFile)
-
+        self.chromoData["ballProgress"] = 0
         #print(self.chromoData["currentChromosome"])
 
         # Genes 1-15
