@@ -132,5 +132,8 @@ ENV/
 #Junk text files for storing print statements
 /examples/junk*.txt
 
+#Thread file
+/examples/thread.json
+
 #Zip files
 .zip
