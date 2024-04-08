@@ -49,7 +49,7 @@ class GeneticAlgorithm:
                 index = random.randint(0, self.POP_SIZE - 1)
                 tournament.append(population[index])
             tournament_sorted = sorted(tournament, key= lambda x: x[1], reverse=True)
-            selected.append(tournament_sorted[0][0])
+            selected.append(tournament_sorted[0])
         return selected
 
     # Creating new population using best half of old population
