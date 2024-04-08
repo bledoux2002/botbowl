@@ -33,10 +33,23 @@ class GeneticAlgorithm:
 	RETURNS TWO PARENTS FOR CROSSOVER, WILL BE CALLED ENOUGH TIMES TO FILL POPULATIONS
 	maybe pull some of that code into here to clean up gaScriptedBot.py?
 	roulette sounds better to me
-    """
     def selection(self, population):
         sorted_chromo_pop = sorted(population, key= lambda x: x[1], reverse=True) # Sort by fitness
         return sorted_chromo_pop[:int(0.1*self.POP_SIZE)]
+    """
+    
+    # Tournament Style selection
+    def selection(self, population, pressure):
+        # Choose k individuals from entire pop
+        # Choose best individual
+        selected = []
+        for _ in range(self.POP_SIZE):
+            tournament = []
+            for _ in range(pressure):
+                index = random.randint(0, self.POP_SIZE)
+                tournament.append(population[index])
+            tournament_sorted = sorted(tournament, key= lambda x: x[1], reverse=True)
+            selected.append(tournament_sorted[0][0])
 
     # Creating new population using best half of old population
     def crossover(self, parents):
