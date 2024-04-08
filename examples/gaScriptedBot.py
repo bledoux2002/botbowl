@@ -903,7 +903,7 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
 botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
-def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
+def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
     ## GA Setup
     choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
     chromoLen = 70                          # Size of chromosomes, (70)
