@@ -903,7 +903,7 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
 botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
-def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
+def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
     ## GA Setup
     choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
     chromoLen = 70                          # Size of chromosomes, (70)
@@ -1052,8 +1052,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     output += f"Total time to execute: {totalTime}\n"
     print(output)
 
-    now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
-    with open(f'results/{now}_results.txt', 'a', encoding='utf-8') as outputFile:
+    with open(f'results/results_{start}.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
 
     # Plot and save results
@@ -1073,7 +1072,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
     ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
     ax.minorticks_on()
-    fig.savefig(f'results/{now}_ga_plot.png')
+    fig.savefig(f'results/plot_{start}.png')
 
 #    input("Press enter to exit the program...\n")
 
@@ -1092,5 +1091,11 @@ if __name__ == "__main__":
     genLim = args.genLim
     numGames = args.numGames
     thread = args.thread
-    print(f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}, Thread: {thread}")
-    main(choice, popSize, numSave, genLim, numGames, thread)
+    
+    output = f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}, Thread: {thread}"
+    print(output)
+    
+    startTime = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
+    with open(f'results/results_{startTime}.txt', 'a', encoding='utf-8') as outputFile:
+        outputFile.write(output + "\n")
+    main(startTime, choice, popSize, numSave, genLim, numGames, thread)
