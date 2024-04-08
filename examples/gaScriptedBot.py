@@ -1099,7 +1099,8 @@ if __name__ == "__main__":
     output = f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}, Thread: {thread}"
     print(output)
     
-    startTime = f"{datetime.now().strftime("%d-%m-%Y_%H.%M.%S")}"
+    now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
+    startTime = f"{now}"
     with open(f'results/results_{startTime}.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
     main(startTime, choice, popSize, numSave, genLim, numGames, thread)
