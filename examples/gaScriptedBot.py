@@ -1092,10 +1092,10 @@ if __name__ == "__main__":
     parser.add_argument("--thread", required=False, type=int, default = 0)
     args = parser.parse_args()
     choice = args.choice
-    popSize = args.popSize
-    numSave = args.numSave
-    genLim = args.genLim
-    numGames = args.numGames
+    popSize = args.pop
+    numSave = args.elite
+    genLim = args.gen
+    numGames = args.games
     thread = args.thread
     
     output = f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}, Thread: {thread}"
