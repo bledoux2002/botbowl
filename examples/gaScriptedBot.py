@@ -908,6 +908,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
     chromoLen = 70                          # Size of chromosomes, (70)
     popSize = popSizeIn                     # Number of chromosomes per generation (100)
+    pressure = 10                           # Selection pressure (number of chromosomes to use in tournament)
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
     numToSave = numToSaveIn                 # Number of best fit chromosomes to carry over between generations (1)
     targetVal = math.inf                    # Target value fitness trying to match
@@ -1034,7 +1035,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         generation += 1
 
         # Select best 1/2 chromosomes from current population
-        selected = ga.selection(population_eval)
+        selected = ga.selection(population_eval, pressure)
 
         # Mate parents to make new generation
         crossovered = ga.crossover(selected)
