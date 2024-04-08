@@ -1066,8 +1066,8 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
     ax.set_xlim(0, generation)
-    yLimUp = bestOverall
-    yLimDown = worstOverall
+    yLimUp = math.ceil(bestOverall[1])
+    yLimDown = math.floor(worstOverall[1])
     ax.set_ylim(yLimDown, yLimUp)
     xTicks = generation // 10
     ax.set_xticks(range(0, generation, xTicks))
