@@ -1049,16 +1049,16 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
         # Replacement of old population with new generation
         population = ga.replace(population_eval, mutated)
 
-
-    output = f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
+    output = f"Choice: {choiceIn}, Population Size: {popSizeIn}, Elitism: {numToSaveIn}, Generations: {genLimIn}, Games per Chromosome: {numGamesIn}, Thread: {threadIn}\n"
+    output += f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
 #    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
     output += f"Total time to execute: {totalTime}\n"
     print(output)
 
-    with open(f'results/results_{start}.txt', 'a', encoding='utf-8') as outputFile:
+    now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
+
+    with open(f'results/results_{now}.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
-    
-    print(start)
 
     # Plot and save results
     fig, ax = plt.subplots()
@@ -1078,7 +1078,7 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
     ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
     ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
     ax.minorticks_on()
-    fig.savefig(f'results/plot_{start}.png')
+    fig.savefig(f'results/plot_{now}.png')
 
 #    input("Press enter to exit the program...\n")
 
@@ -1097,11 +1097,5 @@ if __name__ == "__main__":
     genLim = args.gen
     numGames = args.games
     thread = args.thread
-    
-    output = f"Choice: {choice}, Population Size: {popSize}, Elitism: {numSave}, Generations: {genLim}, Games per Chromosome: {numGames}, Thread: {thread}"
-    print(output)
-    
-    now = str(datetime.now().strftime("%d-%m-%Y_%H.%M.%S"))
-    with open(f'results/results_{now}.txt', 'a', encoding='utf-8') as outputFile:
-        outputFile.write(output + "\n")
-    main(now, choice, popSize, numSave, genLim, numGames, thread)
+
+    main(choice, popSize, numSave, genLim, numGames, thread)
