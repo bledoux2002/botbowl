@@ -924,7 +924,8 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
     generation = 1                          # Current generation
     generationLimit = genLimIn              # Number of generations to simulate (100)
     numGames = numGamesIn                   # Number of games to simulate per chromosome, results averaged to reduce randomness of chance (1)
-#    bestOverall = ["", -math.inf]
+    bestOverall = ["", -math.inf]           # Best chromosome overall for graphing purposes
+    worstOverall = ["", math.inf]           # Worst chromosome overall for graphing purposes (worst of best chromosomes per pop)
 
     chromoData = {
         "currentChromosome" : population[0],
@@ -1021,8 +1022,10 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
 
         # Sort by fitness
         population_eval = sorted(population_eval, key = lambda x: x[1], reverse=True)
-#        if i == 0 or population_eval[0][1] > bestOverall[1]:
-#            bestOverall = population_eval[0] # For comparison, what was the best chromosome overall
+        if i == 0 or population_eval[0][1] > bestOverall[1]:
+            bestOverall = population_eval[0]
+        if i == 0 or population_eval[0][1] < worstOverall[1]:
+            worstOverall = population_eval[0]
 
         # Add fitness to be plotted
         plotFitness.append(population_eval[0][1])
@@ -1063,12 +1066,13 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
     ax.set_xlim(0, generation)
-    yLim = abs(population_eval[0][1])
-    ax.set_ylim(-yLim, yLim)
+    yLimUp = bestOverall
+    yLimDown = worstOverall
+    ax.set_ylim(yLimDown, yLimUp)
     xTicks = generation // 10
     ax.set_xticks(range(0, generation, xTicks))
-    yLimLower, yLimUpper = ax.get_ybound()
-    ax.set_yticks(np.arange(yLimLower, yLimUpper, yLim // 5))
+    yTicks = (abs(yLimUp) + abs(yLimDown)) // 10
+    ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
     ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
     ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
     ax.minorticks_on()
