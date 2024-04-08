@@ -1057,6 +1057,8 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
 
     with open(f'results/results_{start}.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
+    
+    print(start)
 
     # Plot and save results
     fig, ax = plt.subplots()
@@ -1071,7 +1073,7 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
     ax.set_ylim(yLimDown, yLimUp)
     xTicks = generation // 10
     ax.set_xticks(range(0, generation, xTicks))
-    yTicks = (abs(yLimUp) + abs(yLimDown)) // 10
+    yTicks = 1 #(abs(yLimUp) + abs(yLimDown)) // 10
     ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
     ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
     ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
@@ -1100,6 +1102,7 @@ if __name__ == "__main__":
     print(output)
     
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S")
+    print(now)
     startTime = f"{now}"
     with open(f'results/results_{startTime}.txt', 'a', encoding='utf-8') as outputFile:
         outputFile.write(output + "\n")
