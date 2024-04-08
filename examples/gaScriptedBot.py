@@ -1083,10 +1083,10 @@ def main(start, choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--choice", required=False, type=str, default="c", help="c - chromosome; d - default")
-    parser.add_argument("--popSize", required=False, type=int, default=100)
-    parser.add_argument("--numSave", required=False, type=int, default=1)
-    parser.add_argument("--genLim", required=False, type=int, default=100)
-    parser.add_argument("--numGames", required=False, type=int, default=1)
+    parser.add_argument("--pop", required=False, type=int, default=100)
+    parser.add_argument("--elite", required=False, type=int, default=1)
+    parser.add_argument("--gen", required=False, type=int, default=100)
+    parser.add_argument("--games", required=False, type=int, default=1)
     parser.add_argument("--thread", required=False, type=int, default = 0)
     args = parser.parse_args()
     choice = args.choice
