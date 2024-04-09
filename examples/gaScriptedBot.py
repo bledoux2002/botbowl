@@ -1013,7 +1013,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
             output += f"Average ball progression per game = {avgProgression}\n"
 
             # Calculate fitness of current chromosome
-            population_eval.append(ga.fitness_cal(population[i], ball_progression, avgTDsFor, avgTDsAgainst))
+            population_eval.append(ga.fitness_cal(population[i], avgProgression, avgTDsFor, avgTDsAgainst))
 
             output+= f"Fitness: {population_eval[-1][1]}"
             print(output)
