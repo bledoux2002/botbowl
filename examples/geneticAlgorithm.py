@@ -19,14 +19,22 @@ class GeneticAlgorithm:
             chromo = ""
             for _ in range(70): # Genes 1-70
                 chromo += str(random.randint(0, 1))
-            for _ in range(4): # Genes 71-78
+            for _ in range(2): # Genes 71-78
                 tempVal = 3
                 while tempVal == 3: # Make sure gene is equal from 0 to 2, not 3
                     tempGene = ""
                     for i in range(2):
                         tempGene += str(random.randint(0, 1))
                     tempVal = int(tempGene, 2)
+                prevGene = tempGene
+                prevVal = tempVal
                 chromo += tempGene
+                while tempVal == 3 or tempVal == prevVal: # Make sure gene is equal from 0 to 2, not 3
+                    tempGene = ""
+                    for i in range(2):
+                        tempGene += str(random.randint(0, 1))
+                    tempVal = int(tempGene, 2)
+                chromo += prevGene + tempGene
             chromo += str(random.randint(0, 1)) # Gene 79
             population.append(chromo)
         return population
