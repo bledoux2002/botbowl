@@ -974,7 +974,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         for i in range (popSize):
             threads[i].start()
         for i in range (popSize):
-            threads[i].join()
+            population_eval.append(threads[i].join())
         end = time.time()
         totalTime += end - start
         print(f"Time to complete generation {generation}: {end - start} seconds")
