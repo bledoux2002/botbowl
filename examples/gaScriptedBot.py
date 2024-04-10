@@ -970,7 +970,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         threads = []
         start = time.time()
         for _ in range (popSize):
-            threads.append(threading.Thread(target=simGame))
+            threads.append(threading.Thread(target=simGame, args=(chromoData, population, filename, population_eval, ga, )))
         for i in range (popSize):
             threads[i].start()
         for i in range (popSize):
