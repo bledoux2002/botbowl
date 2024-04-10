@@ -19,6 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import argparse
+import threading
 
 ## Variable randomizer
 def binaryChoice(binary, a, b):
@@ -966,57 +967,17 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         population_eval = []
 
         # Avg performance of individual chromosomes in a pop
+        threads = []
+        start = time.time()
+        for _ in range (popSize):
+            threads.append(threading.Thread(target=simGame))
         for i in range (popSize):
-
-            # Update current chromosome for bot to use
-            chromoData["currentChromosome"] = population[i]
-            with open(filename, 'w', encoding='utf-8') as chromoFile:
-                json.dump(chromoData, chromoFile, indent=4)
-
-            # Simulate games using GA bot against Scripted Bot
-            wins = 0
-            tdsFor = 0
-            tdsAgainst = 0
-            ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
-            # Play x games
-            print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
-            for j in range(numGames):
-                home_agent = botbowl.make_bot('ga_scripted')
-                home_agent.name = "GA Scripted Bot"
-                away_agent = botbowl.make_bot('random') #scripted
-                away_agent.name = "Random Bot" #Scripted Bot
-                config.debug_mode = False
-                game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
-                game.config.fast_mode = True
-                print("Starting game ", (j + 1))
-                start = time.time()
-                game.init()
-                end = time.time()
-                totalTime += end - start
-                print(f"Time to complete: {end - start} seconds")
-
-                wins += 1 if game.get_winning_team() is game.state.home_team else 0
-                tdsFor += game.state.home_team.state.score
-                tdsAgainst += game.state.away_team.state.score
-                with open(filename, 'r', encoding='utf-8') as chromoFile:
-                    data = json.load(chromoFile)
-                    chromoData["ballProgress"] = data["ballProgress"]
-                    ball_progression += chromoData["ballProgress"]
-
-            # Log performance
-            #chromo = population[i]
-            output = f"Won {wins} game(s) out of {numGames}\n"
-            avgTDsFor = tdsFor / numGames
-            avgTDsAgainst = tdsAgainst / numGames
-            output += f"Average score: {avgTDsFor} - {avgTDsAgainst}\n"
-            avgProgression = ball_progression / numGames
-            output += f"Average ball progression per game = {avgProgression}\n"
-
-            # Calculate fitness of current chromosome
-            population_eval.append(ga.fitness_cal(population[i], avgProgression, avgTDsFor, avgTDsAgainst))
-
-            output+= f"Fitness: {population_eval[-1][1]}"
-            print(output)
+            threads[i].start()
+        for i in range (popSize):
+            threads[i].join()
+        end = time.time()
+        totalTime += end - start
+        print(f"Time to complete generation {generation}: {end - start} seconds")
 
         ## Bulk of GA
 
@@ -1081,6 +1042,59 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     fig.savefig(f'results/plot_{now}.png')
 
 #    input("Press enter to exit the program...\n")
+
+def simGame(chromoData, population, filename, generation, population_eval, ga):
+    # Update current chromosome for bot to use
+    chromoData["currentChromosome"] = population[i]
+    with open(filename, 'w', encoding='utf-8') as chromoFile:
+        json.dump(chromoData, chromoFile, indent=4)
+
+    # Simulate games using GA bot against Scripted Bot
+    wins = 0
+    tdsFor = 0
+    tdsAgainst = 0
+    ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
+    # Play x games
+    print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
+    for j in range(numGames):
+        home_agent = botbowl.make_bot('ga_scripted')
+        home_agent.name = "GA Scripted Bot"
+        away_agent = botbowl.make_bot('random') #scripted
+        away_agent.name = "Random Bot" #Scripted Bot
+        config.debug_mode = False
+        game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
+        game.config.fast_mode = True
+        print("Starting game ", (j + 1))
+        start = time.time()
+        game.init()
+        end = time.time()
+        #totalTime += end - start
+        print(f"Time to complete: {end - start} seconds")
+
+        wins += 1 if game.get_winning_team() is game.state.home_team else 0
+        tdsFor += game.state.home_team.state.score
+        tdsAgainst += game.state.away_team.state.score
+        with open(filename, 'r', encoding='utf-8') as chromoFile:
+            data = json.load(chromoFile)
+            chromoData["ballProgress"] = data["ballProgress"]
+            ball_progression += chromoData["ballProgress"]
+
+    # Log performance
+    #chromo = population[i]
+    output = f"Won {wins} game(s) out of {numGames}\n"
+    avgTDsFor = tdsFor / numGames
+    avgTDsAgainst = tdsAgainst / numGames
+    output += f"Average score: {avgTDsFor} - {avgTDsAgainst}\n"
+    avgProgression = ball_progression / numGames
+    output += f"Average ball progression per game = {avgProgression}\n"
+
+    # Calculate fitness of current chromosome
+    population_eval.append(ga.fitness_cal(population[i], avgProgression, avgTDsFor, avgTDsAgainst))
+
+    output+= f"Fitness: {population_eval[-1][1]}"
+    print(output)
+    
+    return population_eval
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
