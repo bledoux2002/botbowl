@@ -970,7 +970,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         threads = []
         start = time.time()
         for _ in range (popSize):
-            threads.append(threading.Thread(target=simGame, args=(chromoData, population, filename, generation, population_eval, ga, )))
+            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, population_eval, ga, )))
         for i in range (popSize):
             threads[i].start()
         for i in range (popSize):
@@ -1043,7 +1043,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
 #    input("Press enter to exit the program...\n")
 
-def simGame(chromoData, population, filename, generation, population_eval, ga):
+def simGame(chromoData, population, i, filename, generation, population_eval, ga):
     # Update current chromosome for bot to use
     chromoData["currentChromosome"] = population[i]
     with open(filename, 'w', encoding='utf-8') as chromoFile:
