@@ -941,13 +941,14 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     with open('thread.json', 'w', encoding='utf-8') as threadFile:
         json.dump(thread, threadFile, indent = 4)
 
+    """
     # Update first chromosome to test
     threadNum = thread["thread"]
     filename = f"data_{threadNum}.json"
 #    print(filename)
     with open (filename, 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent = 4)
-
+    """
     # Load configurations, rules, arena and teams
     config = botbowl.load_config("bot-bowl")
     config.competition_mode = False
@@ -971,13 +972,13 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         threads = []
         start = time.time()
         for i in range (popSize):
-            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, ga, )))
+            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, generation, numGames, config, home, away, arena, ruleset, ga, )))
             threads[i].start()
         for i in range (popSize):
             threads[i].join()
 #        print(population_eval)
 #        for i in range (popSize):
-#            simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, ga)
+#            simGame(chromoData, population, i, generation, numGames, config, home, away, arena, ruleset, ga)
         end = time.time()
         totalTime += end - start
         print(f"Time to complete generation {generation}: {end - start} seconds")
@@ -1046,10 +1047,10 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
 #    input("Press enter to exit the program...\n")
 
-def simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, ga):
+def simGame(chromoData, population, i, generation, numGames, config, home, away, arena, ruleset, ga):
     # Update current chromosome for bot to use
     chromoData["currentChromosome"] = population[i]
-    with open(filename, 'w', encoding='utf-8') as chromoFile:
+    with open(f"data_{i}.json", 'w', encoding='utf-8') as chromoFile:
         json.dump(chromoData, chromoFile, indent=4)
 
     # Simulate games using GA bot against Scripted Bot
@@ -1077,7 +1078,7 @@ def simGame(chromoData, population, i, filename, generation, numGames, config, h
         wins += 1 if game.get_winning_team() is game.state.home_team else 0
         tdsFor += game.state.home_team.state.score
         tdsAgainst += game.state.away_team.state.score
-        with open(filename, 'r', encoding='utf-8') as chromoFile:
+        with open(f"data_{i}.json", 'r', encoding='utf-8') as chromoFile:
             data = json.load(chromoFile)
             chromoData["ballProgress"] = data["ballProgress"]
             ball_progression += chromoData["ballProgress"]
