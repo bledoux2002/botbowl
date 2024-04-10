@@ -964,20 +964,20 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     while not found and generation <= generationLimit:
 
         # List of (population, fitness) tuples
+        global population_eval
         population_eval = []
 
         # Avg performance of individual chromosomes in a pop
         threads = []
         start = time.time()
         for i in range (popSize):
-            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, population_eval, ga, )))
-        for i in range (popSize):
+            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, ga, )))
             threads[i].start()
         for i in range (popSize):
-            population_eval.extend(threads[i].join())
-        print(population_eval)
+            threads[i].join()
+#        print(population_eval)
 #        for i in range (popSize):
-#            population_eval.extend(simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, population_eval, ga))
+#            simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, ga)
         end = time.time()
         totalTime += end - start
         print(f"Time to complete generation {generation}: {end - start} seconds")
@@ -1046,7 +1046,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
 #    input("Press enter to exit the program...\n")
 
-def simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, population_eval, ga):
+def simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, ga):
     # Update current chromosome for bot to use
     chromoData["currentChromosome"] = population[i]
     with open(filename, 'w', encoding='utf-8') as chromoFile:
@@ -1096,8 +1096,6 @@ def simGame(chromoData, population, i, filename, generation, numGames, config, h
 
     output+= f"Fitness: {population_eval[-1][1]}"
     print(output)
-    
-    return population_eval
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
