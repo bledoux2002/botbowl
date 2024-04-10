@@ -969,7 +969,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         # Avg performance of individual chromosomes in a pop
         threads = []
         start = time.time()
-        for _ in range (popSize):
+        for i in range (popSize):
             threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, population_eval, ga, )))
         for i in range (popSize):
             threads[i].start()
