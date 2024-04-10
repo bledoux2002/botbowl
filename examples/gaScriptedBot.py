@@ -132,12 +132,12 @@ class GAScriptedBot(ProcBot):
 
         # Genes 71-79
         self.plan1 = []
-        self.plan1.append(float(int(self.chromoData["currentChromosome"][70:72], 2))) # default 0
-        self.plan1.append(float(int(self.chromoData["currentChromosome"][72:74], 2))) # default 1
+        self.plan1.append(int(self.chromoData["currentChromosome"][70:72], 2)) # default 0
+        self.plan1.append(int(self.chromoData["currentChromosome"][72:74], 2)) # default 1
         self.plan2 = []
-        self.plan2.append(float(int(self.chromoData["currentChromosome"][74:76], 2))) # default 0
-        self.plan2.append(float(int(self.chromoData["currentChromosome"][76:78], 2))) # default 1
-        self.plan3 = float(int(self.chromoData["currentChromosome"][78])) # default 0
+        self.plan2.append(int(self.chromoData["currentChromosome"][74:76], 2)) # default 0
+        self.plan2.append(int(self.chromoData["currentChromosome"][76:78], 2)) # default 1
+        self.plan3 = int(self.chromoData["currentChromosome"][78]) # default 0
 
     def new_game(self, game, team):
         """
