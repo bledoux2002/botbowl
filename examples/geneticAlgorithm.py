@@ -19,7 +19,7 @@ class GeneticAlgorithm:
             chromo = ""
             for _ in range(70): # Genes 1-70
                 chromo += str(random.randint(0, 1))
-            for _ in range(2): # Genes 71-78
+            for _ in range(4): # Genes 71-78
                 tempGene = ""
                 tempVal = 3
                 while tempVal == 3: # Make sure gene is equal from 0 to 2, not 3
