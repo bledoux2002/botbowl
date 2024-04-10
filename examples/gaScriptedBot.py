@@ -970,11 +970,14 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         threads = []
         start = time.time()
         for i in range (popSize):
-            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, config, home, away, arena, ruleset, population_eval, ga, )))
+            threads.append(threading.Thread(target=simGame, args=(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, population_eval, ga, )))
         for i in range (popSize):
             threads[i].start()
         for i in range (popSize):
-            population_eval.append(threads[i].join())
+            population_eval.extend(threads[i].join())
+        print(population_eval)
+#        for i in range (popSize):
+#            population_eval.extend(simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, population_eval, ga))
         end = time.time()
         totalTime += end - start
         print(f"Time to complete generation {generation}: {end - start} seconds")
@@ -1043,7 +1046,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
 #    input("Press enter to exit the program...\n")
 
-def simGame(chromoData, population, i, filename, generation, config, home, away, arena, ruleset, population_eval, ga):
+def simGame(chromoData, population, i, filename, generation, numGames, config, home, away, arena, ruleset, population_eval, ga):
     # Update current chromosome for bot to use
     chromoData["currentChromosome"] = population[i]
     with open(filename, 'w', encoding='utf-8') as chromoFile:
