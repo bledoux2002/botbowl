@@ -329,8 +329,8 @@ class GAScriptedBot(ProcBot):
             return
 
         remaining_fn = [0, 1, 2]
-        remaining_fn.pop(self.plan1[0])
-        remaining_fn.pop(self.plan1[1])
+        remaining_fn.remove(self.plan1[0])
+        remaining_fn.remove(self.plan1[1])
         remaining_fn.insert(0, self.plan1[0])
         remaining_fn.insert(1, self.plan1[1])
         for fn in remaining_fn:
@@ -356,8 +356,8 @@ class GAScriptedBot(ProcBot):
         open_players = self._open_players(game)
 
         remaining_fn = [0, 1, 2]
-        remaining_fn.pop(self.plan2[0])
-        remaining_fn.pop(self.plan2[1])
+        remaining_fn.remove(self.plan2[0])
+        remaining_fn.remove(self.plan2[1])
         remaining_fn.insert(0, self.plan2[0])
         remaining_fn.insert(1, self.plan2[1])
 
