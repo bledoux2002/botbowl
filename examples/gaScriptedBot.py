@@ -130,6 +130,15 @@ class GAScriptedBot(ProcBot):
         self.assPathLim = float(int(self.chromoData["currentChromosome"][60:63], 2) + int(self.chromoData["currentChromosome"][63:65], 2)) / 10 #default 1.0
         self.moveLim = float(int(self.chromoData["currentChromosome"][65:68], 2) + int(self.chromoData["currentChromosome"][68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
 
+        # Genes 71-79
+        self.plan1 = []
+        self.plan1.append(float(int(self.chromoData["currentChromosome"][70:72], 2))) # default 0
+        self.plan1.append(float(int(self.chromoData["currentChromosome"][72:74], 2))) # default 1
+        self.plan2 = []
+        self.plan2.append(float(int(self.chromoData["currentChromosome"][74:76], 2))) # default 0
+        self.plan2.append(float(int(self.chromoData["currentChromosome"][76:78], 2))) # default 1
+        self.plan3 = float(int(self.chromoData["currentChromosome"][78])) # default 0
+
     def new_game(self, game, team):
         """
         Called when a new game starts.
@@ -319,43 +328,74 @@ class GAScriptedBot(ProcBot):
         if (self._stand_marked_players(game) == 0):
             return
 
-        #print("2. Move ball carrier to endzone")
-        if (self._move_ball_carrier(game, ball_carrier) == 0):
-            return
-
-        #print("3. Safe blocks")
-        if (self._safe_blocks(game) == 0):
-            return
-
-        #print("4. Pickup ball")
-        if (self._pickup_ball(game) == 0):
-            return
+        remaining_fn = [0, 1, 2]
+        remaining_fn.pop(self.plan1[0])
+        remaining_fn.pop(self.plan1[1])
+        remaining_fn.insert(0, self.plan1[0])
+        remaining_fn.insert(1, self.plan1[1])
+        for fn in remaining_fn:
+            match fn:
+                case 0:
+                    #print("2. Move ball carrier to endzone")
+                    if (self._move_ball_carrier(game, ball_carrier) == 0):
+                        return
+                    remaining_fn.pop(0)
+                case 1:
+                    #print("3. Safe blocks")
+                    if (self._safe_blocks(game) == 0):
+                        return
+                    remaining_fn.pop
+                case 2:
+                    #print("4. Pickup ball")
+                    if (self._pickup_ball(game) == 0):
+                        return
+                case _:
+                    pass
 
         # Scan for unused players that are not marked
         open_players = self._open_players(game)
 
-        #print("5. Move receivers into scoring distance if not already")
-        if (self._move_receivers(game, ball_carrier, open_players) == 0):
-            return
+        remaining_fn = [0, 1, 2]
+        remaining_fn.pop(self.plan2[0])
+        remaining_fn.pop(self.plan2[1])
+        remaining_fn.insert(0, self.plan2[0])
+        remaining_fn.insert(1, self.plan2[1])
 
-        #print("6. Blitz with open block players")
-        if (self._blitz(game, open_players) == 0):
-            return
-
-        #print("7. Make cage around ball carrier")
-        if (self._cage_carrier(game, ball_carrier, open_players) == 0):
-            return
+        for fn in remaining_fn:
+            match fn:
+                case 0:
+                    #print("5. Move receivers into scoring distance if not already")
+                    if (self._move_receivers(game, ball_carrier, open_players) == 0):
+                        return
+                case 1:
+                    #print("6. Blitz with open block players")
+                    if (self._blitz(game, open_players) == 0):
+                        return
+                case 2:
+                    #print("7. Make cage around ball carrier")
+                    if (self._cage_carrier(game, ball_carrier, open_players) == 0):
+                        return
+                case _:
+                    pass
 
         # Scan for assist positions
         assist_positions = self._assist_positions(game)
 
-        #print("8. Move non-marked players to assist")
-        if (self._move_to_assist(game, open_players, assist_positions) == 0):
-            return
-
-        #print("9. Move towards the ball")
-        if (self._move_to_ball(game, ball_carrier, open_players) == 0):
-            return
+        match self.plan3:
+            case 0:
+                #print("8. Move non-marked players to assist")
+                if (self._move_to_assist(game, open_players, assist_positions) == 0):
+                    return
+                #print("9. Move towards the ball")
+                if (self._move_to_ball(game, ball_carrier, open_players) == 0):
+                    return
+            case 1:
+                #print("9. Move towards the ball")
+                if (self._move_to_ball(game, ball_carrier, open_players) == 0):
+                    return
+                #print("8. Move non-marked players to assist")
+                if (self._move_to_assist(game, open_players, assist_positions) == 0):
+                    return
 
         #print("10. Risky blocks")
         if (self._risky_blocks(game) == 0):
@@ -906,7 +946,7 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
     ## GA Setup
     choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
-    chromoLen = 70                          # Size of chromosomes, (70)
+    chromoLen = 79                          # Size of chromosomes, (79)
     popSize = popSizeIn                     # Number of chromosomes per generation (100)
     pressure = 10                           # Selection pressure (number of chromosomes to use in tournament)
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
@@ -916,7 +956,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     match choice:
         case "d":
             ## Default Chromosome (mimics original scripted bot)
-            population = ["1111111111111111110011110111001111000000011001111111000111101111111111"]
+            population = ["1111111111111111110011110111001111000000011001111111000111101111111111000100010"]
         case "c":
             ## GA Chromosome
             population = ga.initialize_pop()
