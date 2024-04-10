@@ -328,6 +328,9 @@ class GAScriptedBot(ProcBot):
         if (self._stand_marked_players(game) == 0):
             return
 
+        print(self.plan1)
+        print(self.plan2)
+        print(self.plan3)
         remaining_fn = [0, 1, 2]
         remaining_fn.remove(self.plan1[0])
         remaining_fn.remove(self.plan1[1])
