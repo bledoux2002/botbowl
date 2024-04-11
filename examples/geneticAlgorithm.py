@@ -26,7 +26,6 @@ class GeneticAlgorithm:
                     for i in range(2):
                         tempGene += str(random.randint(0, 1))
                     tempVal = int(tempGene, 2)
-                prevGene = tempGene
                 prevVal = tempVal
                 chromo += tempGene
                 while tempVal == 3 or tempVal == prevVal: # Make sure gene is equal from 0 to 2, not 3
@@ -34,7 +33,7 @@ class GeneticAlgorithm:
                     for i in range(2):
                         tempGene += str(random.randint(0, 1))
                     tempVal = int(tempGene, 2)
-                chromo += prevGene + tempGene
+                chromo += tempGene
             chromo += str(random.randint(0, 1)) # Gene 79
             population.append(chromo)
         return population
