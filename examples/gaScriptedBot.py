@@ -10,14 +10,14 @@ from botbowl.core.pathfinding.python_pathfinding import Path  # Only used for ty
 
 from scripted_bot_example import *
 from random_bot_example import *
-import random
+#import random
 from geneticAlgorithm import *
 import json
 from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+#import os
 import argparse
 
 ## Variable randomizer
@@ -130,14 +130,13 @@ class GAScriptedBot(ProcBot):
         self.assPathLim = float(int(self.chromoData["currentChromosome"][60:63], 2) + int(self.chromoData["currentChromosome"][63:65], 2)) / 10 #default 1.0
         self.moveLim = float(int(self.chromoData["currentChromosome"][65:68], 2) + int(self.chromoData["currentChromosome"][68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
 
-        # Genes 71-79
-        self.plan1 = []
-        self.plan1.append(int(self.chromoData["currentChromosome"][70:72], 2)) # default 0
-        self.plan1.append(int(self.chromoData["currentChromosome"][72:74], 2)) # default 1
-        self.plan2 = []
-        self.plan2.append(int(self.chromoData["currentChromosome"][74:76], 2)) # default 0
-        self.plan2.append(int(self.chromoData["currentChromosome"][76:78], 2)) # default 1
-        self.plan3 = int(self.chromoData["currentChromosome"][78]) # default 0
+        # Genes 71-134
+        order = {}
+        for i in range(8):
+            start = (i * 8) + 70
+            end = (i * 8) + 78
+            order[i] = int(self.chromosome["currentChromosome"][start:end], 2)
+        self.order = sorted(order.items(), key=lambda x:x[1])
 
     def new_game(self, game, team):
         """
@@ -327,19 +326,15 @@ class GAScriptedBot(ProcBot):
         #print("1. Stand up marked players")
         if (self._stand_marked_players(game) == 0):
             return
+        
+        openLogged = False
 
-        remaining_fn = [0, 1, 2]
-        remaining_fn.remove(self.plan1[0])
-        remaining_fn.remove(self.plan1[1])
-        remaining_fn.insert(0, self.plan1[0])
-        remaining_fn.insert(1, self.plan1[1])
-        for fn in remaining_fn:
-            match fn:
+        for i in self.order:
+            match i[0]:
                 case 0:
                     #print("2. Move ball carrier to endzone")
                     if (self._move_ball_carrier(game, ball_carrier) == 0):
                         return
-                    remaining_fn.pop(0)
                 case 1:
                     #print("3. Safe blocks")
                     if (self._safe_blocks(game) == 0):
@@ -349,53 +344,50 @@ class GAScriptedBot(ProcBot):
                     #print("4. Pickup ball")
                     if (self._pickup_ball(game) == 0):
                         return
-                case _:
-                    pass
-
-        # Scan for unused players that are not marked
-        open_players = self._open_players(game)
-
-        remaining_fn = [0, 1, 2]
-        remaining_fn.remove(self.plan2[0])
-        remaining_fn.remove(self.plan2[1])
-        remaining_fn.insert(0, self.plan2[0])
-        remaining_fn.insert(1, self.plan2[1])
-
-        for fn in remaining_fn:
-            match fn:
-                case 0:
+                case 3:
+                    if not openLogged:
+                        # Scan for unused players that are not marked
+                        open_players = self._open_players(game)
+                        openLogged = True
                     #print("5. Move receivers into scoring distance if not already")
                     if (self._move_receivers(game, ball_carrier, open_players) == 0):
                         return
-                case 1:
+                case 4:
+                    if not openLogged:
+                        # Scan for unused players that are not marked
+                        open_players = self._open_players(game)
+                        openLogged = True
                     #print("6. Blitz with open block players")
                     if (self._blitz(game, open_players) == 0):
                         return
-                case 2:
+                case 5:
+                    if not openLogged:
+                        # Scan for unused players that are not marked
+                        open_players = self._open_players(game)
+                        openLogged = True
                     #print("7. Make cage around ball carrier")
                     if (self._cage_carrier(game, ball_carrier, open_players) == 0):
                         return
+                case 6:
+                    if not openLogged:
+                        # Scan for unused players that are not marked
+                        open_players = self._open_players(game)
+                        openLogged = True
+                    # Scan for assist positions
+                    assist_positions = self._assist_positions(game)
+                    #print("8. Move non-marked players to assist")
+                    if (self._move_to_assist(game, open_players, assist_positions) == 0):
+                        return
+                case 7:
+                    if not openLogged:
+                        # Scan for unused players that are not marked
+                        open_players = self._open_players(game)
+                        openLogged = True
+                    #print("9. Move towards the ball")
+                    if (self._move_to_ball(game, ball_carrier, open_players) == 0):
+                        return
                 case _:
                     pass
-
-        # Scan for assist positions
-        assist_positions = self._assist_positions(game)
-
-        match self.plan3:
-            case 0:
-                #print("8. Move non-marked players to assist")
-                if (self._move_to_assist(game, open_players, assist_positions) == 0):
-                    return
-                #print("9. Move towards the ball")
-                if (self._move_to_ball(game, ball_carrier, open_players) == 0):
-                    return
-            case 1:
-                #print("9. Move towards the ball")
-                if (self._move_to_ball(game, ball_carrier, open_players) == 0):
-                    return
-                #print("8. Move non-marked players to assist")
-                if (self._move_to_assist(game, open_players, assist_positions) == 0):
-                    return
 
         #print("10. Risky blocks")
         if (self._risky_blocks(game) == 0):
