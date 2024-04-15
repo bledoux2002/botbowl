@@ -326,7 +326,7 @@ class GAScriptedBot(ProcBot):
         #print("1. Stand up marked players")
         if (self._stand_marked_players(game) == 0):
             return
-        
+
         openLogged = False
 
         for i in self.order:
@@ -339,7 +339,6 @@ class GAScriptedBot(ProcBot):
                     #print("3. Safe blocks")
                     if (self._safe_blocks(game) == 0):
                         return
-                    remaining_fn.pop
                 case 2:
                     #print("4. Pickup ball")
                     if (self._pickup_ball(game) == 0):
