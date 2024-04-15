@@ -491,7 +491,7 @@ class Block(Procedure):
         assert self.selected_die is not None
 
         BBDie.FixedRolls.append(self.selected_die)
-        die = BBDie(None)
+        die = BBDie(self.game.rng) #I CHANGED THIS FROM NONE TO SELF.GAME.RNG
         self.game.report(Outcome(OutcomeType.ACTION_SELECT_DIE, team=self.favor, rolls=[DiceRoll([die])]))
 
         self.game.remove_secondary_clocks()
