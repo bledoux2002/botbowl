@@ -135,7 +135,6 @@ class GAScriptedBot(ProcBot):
         for i in range(8):
             start = (i * 8) + 70
             end = (i * 8) + 78
-            print(start + ", " + end)
             order[i] = int(self.chromoData["currentChromosome"][start:end], 2)
         self.order = sorted(order.items(), key=lambda x:x[1])
 
@@ -938,7 +937,7 @@ botbowl.register_bot('ga_scripted', GAScriptedBot)
 def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
     ## GA Setup
     choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
-    chromoLen = 79                          # Size of chromosomes, (79)
+    chromoLen = 134                          # Size of chromosomes, (134)
     popSize = popSizeIn                     # Number of chromosomes per generation (100)
     pressure = 50                           # Selection pressure (50, number of chromosomes to use in tournament)
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
@@ -948,7 +947,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     match choice:
         case "d":
             ## Default Chromosome (mimics original scripted bot)
-            population = ["1111111111111111110011110111001111000000011001111111000111101111111111000100010"]
+            population = ["11111111111111111100111101110011110000000110011111110001111011111111110000000000000001000000100000001100000100000001010000011000000111"]
         case "c":
             ## GA Chromosome
             population = ga.initialize_pop()

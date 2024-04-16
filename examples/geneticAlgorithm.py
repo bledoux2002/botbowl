@@ -5,7 +5,7 @@ import random
 
 class GeneticAlgorithm:
 
-    def __init__(self, chromoLen = 79, popSize = 100, mutRate = 0.01, keepCount = 0, targetVal = 1):
+    def __init__(self, chromoLen = 134, popSize = 100, mutRate = 0.01, keepCount = 0, targetVal = 1):
         self.CHROMO_LEN = chromoLen # Length of chromosome (num of genes)
         self.POP_SIZE = popSize # Size of population (num of chromosomes)
         self.MUT_RATE = mutRate # Rate of mutation (higher = more mutations)
