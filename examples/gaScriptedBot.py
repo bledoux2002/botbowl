@@ -135,6 +135,7 @@ class GAScriptedBot(ProcBot):
         for i in range(8):
             start = (i * 8) + 70
             end = (i * 8) + 78
+            print(start + ", " + end)
             order[i] = int(self.chromoData["currentChromosome"][start:end], 2)
         self.order = sorted(order.items(), key=lambda x:x[1])
 
