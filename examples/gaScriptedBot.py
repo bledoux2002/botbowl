@@ -1084,7 +1084,11 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     output = f"Choice: {choiceIn}, Population Size: {popSizeIn}, Elitism: {numToSaveIn}, Generations: {genLimIn}, Games per Chromosome: {numGamesIn}, Thread: {threadIn}\n"
     output += f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
 #    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
-    output += f"Total time to execute: {totalTime}\n"
+    totalHr = totalTime // 3600
+    totalMin = (totalTime // 60) % 60
+    totalSec = totalTime % 60
+    convertedTime = f"{totalHr} hours, {totalMin} minutes, {totalSec} seconds"
+    output += f"Total time to execute: {convertedTime}\n"
     print(output)
 
     with open(f'results/results_{filename}.txt', 'a', encoding='utf-8') as outputFile:
