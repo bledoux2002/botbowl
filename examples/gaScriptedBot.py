@@ -1106,9 +1106,9 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
     yLimUp = math.ceil(bestOverall[1])
     yLimDown = math.floor(worstOverall[1])
     ax.set_ylim(yLimDown, yLimUp)
-    xTicks = 1 #generation // 10
+    xTicks = generation // 10
     ax.set_xticks(range(0, generation, xTicks))
-    yTicks = 1 #(abs(yLimUp) + abs(yLimDown)) // 10
+    yTicks = (abs(yLimUp) + abs(yLimDown)) // 10
     ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
     ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
     ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
