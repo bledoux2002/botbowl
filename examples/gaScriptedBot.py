@@ -84,9 +84,10 @@ class GAScriptedBot(ProcBot):
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
 
+        threadData = {"thread" : 0}
         with open('thread.json', 'r', encoding='utf-8') as dataFile:
-            data = json.load(dataFile)
-            thread = data["thread"]
+            threadData = json.load(dataFile)
+        thread = threadData["thread"]
 
         self.filename = f"data_{thread}.json"
 #        print(self.filename)
