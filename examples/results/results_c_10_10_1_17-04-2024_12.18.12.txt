@@ -1,0 +1,4 @@
+Choice: c, Population Size: 10, Elitism: 1, Generations: 10, Games per Chromosome: 1, Thread: 1
+10000100001110111010110100100010110001000111011001010101010011111001110001011011110110010101000110111100011110011001100011111111010000 was the strongest candidate over 10 generations, with a fitness score of 0.8.
+Total time to execute: 895.8599116802216
+
