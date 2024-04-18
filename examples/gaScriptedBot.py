@@ -1091,6 +1091,8 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         totalSec = totalTime % 60
         convertedTime = f"{totalHr} hours, {totalMin} minutes, {totalSec} seconds"
         output += f"Total time to execute: {convertedTime}\n"
+        avgTime = totalTime / (popSize * generation * numGames)
+        output += f"Average game time: {avgTime}\n"
         #print(output)
 
         with open(f'results/results_{filename}.txt', 'w', encoding='utf-8') as outputFile:
