@@ -970,6 +970,29 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
     plotFitness = [0]
     totalTime = 0.0
+    
+    # Plot and save results
+    fig, ax = plt.subplots()
+    ax.plot(plotFitness, 'b', label="Fitness")
+    ax.plot(4, 'r', label="Baseline")
+    ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Most Fit Chromosome")
+    ax.set_xlim(0, generation)
+    yLimUp = 10
+    yLimDown = -10
+    ax.set_ylim(yLimDown, yLimUp)
+    if generation < 10:
+        xTicks = 1
+    else:
+        xTicks = generation // 10
+    ax.set_xticks(range(0, generation, xTicks))
+    yTicks = 1
+    ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
+    ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
+    ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
+    ax.minorticks_on()
+    ax.legend()
 
     with open('thread.json', 'w', encoding='utf-8') as threadFile:
         json.dump(thread, threadFile, indent = 4)
@@ -1060,8 +1083,38 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         if i == 0 or population_eval[0][1] < worstOverall[1]:
             worstOverall = population_eval[0]
 
+        output = f"Choice: {choiceIn}, Population Size: {popSizeIn}, Elitism: {numToSaveIn}, Generations: {generation}, Games per Chromosome: {numGamesIn}, Thread: {threadIn}\n"
+        output += f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
+#       output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
+        totalHr = totalTime // 3600
+        totalMin = (totalTime // 60) % 60
+        totalSec = totalTime % 60
+        convertedTime = f"{totalHr} hours, {totalMin} minutes, {totalSec} seconds"
+        output += f"Total time to execute: {convertedTime}\n"
+        avgTime = totalTime / (popSize * generation * numGames)
+        output += f"Average game time: {avgTime}\n"
+        #print(output)
+
+        with open(f'results/results_{filename}.txt', 'w', encoding='utf-8') as outputFile:
+            outputFile.write(output + "\n")
+
         # Add fitness to be plotted
         plotFitness.append(population_eval[0][1])
+        ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
+        ax.plot(plotFitness, 'b', label="Fitness")
+        ax.axhline(4, color="red", label="Baseline")
+        ax.set_xlim(0, generation)
+#        yLimUp = math.ceil(bestOverall[1])
+#        yLimDown = math.floor(worstOverall[1])
+#        ax.set_ylim(yLimDown, yLimUp)
+        if generation < 10:
+            xTicks = 1
+        else:
+            xTicks = generation // 10
+        ax.set_xticks(range(0, generation, xTicks))
+#        yTicks = (abs(yLimUp) + abs(yLimDown)) // 10
+#        ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
+        fig.savefig(f'results/plot_{filename}.png')
 
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
@@ -1081,39 +1134,6 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
         # Replacement of old population with new generation
         population = ga.replace(population_eval, mutated)
-
-    output = f"Choice: {choiceIn}, Population Size: {popSizeIn}, Elitism: {numToSaveIn}, Generations: {genLimIn}, Games per Chromosome: {numGamesIn}, Thread: {threadIn}\n"
-    output += f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
-#    output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
-    totalHr = totalTime // 3600
-    totalMin = (totalTime // 60) % 60
-    totalSec = totalTime % 60
-    convertedTime = f"{totalHr} hours, {totalMin} minutes, {totalSec} seconds"
-    output += f"Total time to execute: {convertedTime}\n"
-    print(output)
-
-    with open(f'results/results_{filename}.txt', 'a', encoding='utf-8') as outputFile:
-        outputFile.write(output + "\n")
-
-    # Plot and save results
-    fig, ax = plt.subplots()
-    ax.plot(plotFitness)
-    ax.axhline(0, color="red")
-    ax.set_title(f"Fitness of GA Bot Over {generationLimit} Generations")
-    ax.set_xlabel("Generation")
-    ax.set_ylabel("Most Fit Chromosome")
-    ax.set_xlim(0, generation)
-    yLimUp = math.ceil(bestOverall[1])
-    yLimDown = math.floor(worstOverall[1])
-    ax.set_ylim(yLimDown, yLimUp)
-    xTicks = generation // 10
-    ax.set_xticks(range(0, generation, xTicks))
-    yTicks = (abs(yLimUp) + abs(yLimDown)) // 10
-    ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
-    ax.grid(which='major', color='#DDDDDD', linewidth=0.8)
-    ax.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=0.5)
-    ax.minorticks_on()
-    fig.savefig(f'results/plot_{filename}.png')
 
 #    input("Press enter to exit the program...\n")
 
