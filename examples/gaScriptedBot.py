@@ -935,12 +935,13 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
 botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
-def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
+def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
     now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S") #used for all filenames
     filename = f"{choiceIn}_{popSizeIn}_{genLimIn}_{numGamesIn}_{now}"
     ## GA Setup
-    choice = choiceIn                       #default, or chromosome (random is popSize 1 genLim 1)
-    chromoLen = 134                          # Size of chromosomes, (134)
+    choice = choiceIn                       # chromosomes, default, or best chromosome
+    opponent = oppIn                        # random or scripted
+    chromoLen = 134                         # Size of chromosomes, (134)
     popSize = popSizeIn                     # Number of chromosomes per generation (100)
     pressure = 50                           # Selection pressure (50, number of chromosomes to use in tournament)
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
@@ -1042,8 +1043,12 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
             for j in range(numGames):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
-                away_agent = botbowl.make_bot('scripted') #scripted or random
-                away_agent.name = "Scripted Bot" #Scripted Bot or Random Bot
+                if opponent == "r":
+                    away_agent = botbowl.make_bot('random')
+                    away_agent.name = "Random Bot"
+                elif opponent == "s":
+                    away_agent = botbowl.make_bot('scripted')
+                    away_agent.name = "Scripted Bot"
                 config.debug_mode = False
                 game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
                 game.config.fast_mode = True
@@ -1122,6 +1127,9 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
             print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
+            with open("final_pop.json", "w", encoding='utf-8') as popFile:
+                popData = {"pop": population_eval}
+                json.dump(popData, popFile, indent=4)
             break
         print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
         generation += 1
@@ -1142,18 +1150,20 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--choice", required=False, type=str, default="c", help="c - chromosome; d - default; b - best chromo atm")
+    parser.add_argument("--chromo", required=False, type=str, default="c", help="c - chromosomes; d - default; b - best chromo atm")
+    parser.add_argument("--opp", required=False, type=str, default="r", help="r - random; s - scripted")
     parser.add_argument("--pop", required=False, type=int, default=100)
     parser.add_argument("--elite", required=False, type=int, default=1)
     parser.add_argument("--gen", required=False, type=int, default=100)
     parser.add_argument("--games", required=False, type=int, default=1)
     parser.add_argument("--thread", required=False, type=int, default = 0)
     args = parser.parse_args()
-    choice = args.choice
+    choice = args.chromo
+    opp = args.opp
     popSize = args.pop
     numSave = args.elite
     genLim = args.gen
     numGames = args.games
     thread = args.thread
 
-    main(choice, popSize, numSave, genLim, numGames, thread)
+    main(choice, opp, popSize, numSave, genLim, numGames, thread)
