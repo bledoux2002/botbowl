@@ -954,6 +954,9 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
         case "c":
             ## GA Chromosome
             population = ga.initialize_pop()
+        case "b":
+            ## Best chromosome atm
+            population = ["11010110000111000011111101010001011110100101011110010001001000000011000011000101000100000011100100001100110001001111101111111011101011"]
     found = False                           # Used if specific target value trying to be met
     generation = 1                          # Current generation
     generationLimit = genLimIn              # Number of generations to simulate (100)
@@ -1039,8 +1042,8 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
             for j in range(numGames):
                 home_agent = botbowl.make_bot('ga_scripted')
                 home_agent.name = "GA Scripted Bot"
-                away_agent = botbowl.make_bot('random') #scripted
-                away_agent.name = "Random Bot" #Scripted Bot
+                away_agent = botbowl.make_bot('scripted') #scripted or random
+                away_agent.name = "Scripted Bot" #Scripted Bot or Random Bot
                 config.debug_mode = False
                 game = botbowl.Game(j, home, away, home_agent, away_agent, config, arena=arena, ruleset=ruleset)
                 game.config.fast_mode = True
@@ -1139,7 +1142,7 @@ def main(choiceIn = "c", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGa
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--choice", required=False, type=str, default="c", help="c - chromosome; d - default")
+    parser.add_argument("--choice", required=False, type=str, default="c", help="c - chromosome; d - default; b - best chromo atm")
     parser.add_argument("--pop", required=False, type=int, default=100)
     parser.add_argument("--elite", required=False, type=int, default=1)
     parser.add_argument("--gen", required=False, type=int, default=100)
