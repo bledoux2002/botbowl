@@ -946,8 +946,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     pressure = 50                           # Selection pressure (50, number of chromosomes to use in tournament)
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
     numToSave = numToSaveIn                 # Number of best fit chromosomes to carry over between generations (1)
-    targetVal = 3.5                    # Target value fitness trying to match (math.inf)
-    ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
+    ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave)
     match choice:
         case "d":
             ## Default Chromosome (mimics original scripted bot)
@@ -1129,7 +1128,15 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         fig.savefig(f'results/plot_{filename}.png')
 
         # Break if target met
-        if (population_eval[0][1] >= targetVal) or generation == generationLimit:
+        avgChange = 1
+        if generation > 9: #If change stagnates, end sim
+            new = np.array(plotFitness[generation - 6:])
+            old = np.array(plotFitness[generation - 7:-1])
+            dif = np.subtract(new, old)
+            difList = dif.tolist()
+            absDifs = [abs(num) for num in difList]
+            avgChange = sum(absDifs) / 5 #avg change of best fit over last 5 generations
+        if avgChange < 0.5 or generation == generationLimit:
             print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
             break
         print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
