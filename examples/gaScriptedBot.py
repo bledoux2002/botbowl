@@ -946,7 +946,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     pressure = 50                           # Selection pressure (50, number of chromosomes to use in tournament)
     mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
     numToSave = numToSaveIn                 # Number of best fit chromosomes to carry over between generations (1)
-    targetVal = math.inf                    # Target value fitness trying to match
+    targetVal = 3.5                    # Target value fitness trying to match (math.inf)
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave, targetVal)
     match choice:
         case "d":
@@ -978,7 +978,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     # Plot and save results
     fig, ax = plt.subplots()
     ax.plot(plotFitness, 'b', label="Fitness")
-    ax.plot(4, 'r', label="Baseline")
+    ax.plot(3.5, 'r', label="Baseline")
     ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
@@ -1091,6 +1091,10 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         if i == 0 or population_eval[0][1] < worstOverall[1]:
             worstOverall = population_eval[0]
 
+        with open("final_pop.json", "w", encoding='utf-8') as popFile:
+                popData = {"pop": population_eval}
+                json.dump(popData, popFile, indent=4)
+
         output = f"Choice: {choiceIn}, Population Size: {popSizeIn}, Elitism: {numToSaveIn}, Generations: {generation}, Games per Chromosome: {numGamesIn}, Thread: {threadIn}\n"
         output += f"{population_eval[0][0]} was the strongest candidate over {generation} generations, with a fitness score of {population_eval[0][1]}.\n"
 #       output += f"{bestOverall[0]} was the best candidate detected throughout the generations, with a fitness score of {bestOverall[1]}.\n"
@@ -1110,7 +1114,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         plotFitness.append(population_eval[0][1])
         ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
         ax.plot(plotFitness, 'b', label="Fitness")
-        ax.axhline(4, color="red", label="Baseline")
+        ax.axhline(3.5, color="red", label="Baseline")
         ax.set_xlim(0, generation)
 #        yLimUp = math.ceil(bestOverall[1])
 #        yLimDown = math.floor(worstOverall[1])
@@ -1127,9 +1131,6 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         # Break if target met
         if (population_eval[0][1] >= targetVal) or generation == generationLimit:
             print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
-            with open("final_pop.json", "w", encoding='utf-8') as popFile:
-                popData = {"pop": population_eval}
-                json.dump(popData, popFile, indent=4)
             break
         print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
         generation += 1
