@@ -957,6 +957,12 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         case "b":
             ## Best chromosome atm
             population = ["11010110000111000011111101010001011110100101011110010001001000000011000011000101000100000011100100001100110001001111101111111011101011"]
+        case "p":
+            with open("final_pop.json", "r", encoding="utf-8") as popFile:
+                popData = json.load(popFile)
+            population = []
+            for chromo in popData["pop"]:
+                population.append(chromo[0])
     found = False                           # Used if specific target value trying to be met
     generation = 1                          # Current generation
     generationLimit = genLimIn              # Number of generations to simulate (100)
@@ -1158,7 +1164,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chromo", required=False, type=str, default="c", help="c - chromosomes; d - default; b - best chromo atm")
+    parser.add_argument("--chromo", required=False, type=str, default="c", help="c - chromosomes; d - default; b - best chromo atm; p - previous population")
     parser.add_argument("--opp", required=False, type=str, default="r", help="r - random; s - scripted")
     parser.add_argument("--pop", required=False, type=int, default=20)
     parser.add_argument("--elite", required=False, type=int, default=1)
