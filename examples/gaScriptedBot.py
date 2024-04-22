@@ -324,27 +324,27 @@ class GAScriptedBot(ProcBot):
 
     def _make_plan(self, game: botbowl.Game, ball_carrier):
         #USE THIS FOR GA
-        #print("1. Stand up marked players")
-        if (self._stand_marked_players(game) == 0):
-            return
-
         openLogged = False
 
         for i in self.order:
             match i[0]:
                 case 0:
+                    #print("1. Stand up marked players")
+                    if (self._stand_marked_players(game) == 0):
+                        return
+                case 1:
                     #print("2. Move ball carrier to endzone")
                     if (self._move_ball_carrier(game, ball_carrier) == 0):
                         return
-                case 1:
+                case 2:
                     #print("3. Safe blocks")
                     if (self._safe_blocks(game) == 0):
                         return
-                case 2:
+                case 3:
                     #print("4. Pickup ball")
                     if (self._pickup_ball(game) == 0):
                         return
-                case 3:
+                case 4:
                     if not openLogged:
                         # Scan for unused players that are not marked
                         open_players = self._open_players(game)
@@ -352,7 +352,7 @@ class GAScriptedBot(ProcBot):
                     #print("5. Move receivers into scoring distance if not already")
                     if (self._move_receivers(game, ball_carrier, open_players) == 0):
                         return
-                case 4:
+                case 5:
                     if not openLogged:
                         # Scan for unused players that are not marked
                         open_players = self._open_players(game)
@@ -360,7 +360,7 @@ class GAScriptedBot(ProcBot):
                     #print("6. Blitz with open block players")
                     if (self._blitz(game, open_players) == 0):
                         return
-                case 5:
+                case 6:
                     if not openLogged:
                         # Scan for unused players that are not marked
                         open_players = self._open_players(game)
@@ -368,7 +368,7 @@ class GAScriptedBot(ProcBot):
                     #print("7. Make cage around ball carrier")
                     if (self._cage_carrier(game, ball_carrier, open_players) == 0):
                         return
-                case 6:
+                case 7:
                     if not openLogged:
                         # Scan for unused players that are not marked
                         open_players = self._open_players(game)
@@ -378,13 +378,21 @@ class GAScriptedBot(ProcBot):
                     #print("8. Move non-marked players to assist")
                     if (self._move_to_assist(game, open_players, assist_positions) == 0):
                         return
-                case 7:
+                case 8:
                     if not openLogged:
                         # Scan for unused players that are not marked
                         open_players = self._open_players(game)
                         openLogged = True
                     #print("9. Move towards the ball")
                     if (self._move_to_ball(game, ball_carrier, open_players) == 0):
+                        return
+                case 9:
+                    #print("10. Risky blocks")
+                    if (self._risky_blocks(game) == 0):
+                        return
+                case 10:
+                    #print("11. End turn")
+                    if (self.actions.append(Action(ActionType.END_TURN)) == 0):
                         return
                 case _:
                     pass
