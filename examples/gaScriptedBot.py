@@ -979,7 +979,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
 
     plotFitness = [0]
     totalTime = 0.0
-    
+
     # Plot and save results
     fig, ax = plt.subplots()
     ax.plot(plotFitness, 'b', label="Fitness")
@@ -1134,6 +1134,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         fig.savefig(f'results/plot_{filename}.png')
 
         # Break if target met
+        """
         avgChange = 1
         if generation > 9: #If change stagnates, end sim
             new = np.array(plotFitness[generation - 6:])
@@ -1142,7 +1143,8 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
             difList = dif.tolist()
             absDifs = [abs(num) for num in difList]
             avgChange = sum(absDifs) / 5 #avg change of best fit over last 5 generations
-        if avgChange < 0.5 or generation == generationLimit:
+        """
+        if generation == generationLimit:
             print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
             break
         print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
