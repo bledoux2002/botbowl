@@ -135,5 +135,8 @@ ENV/
 #Thread file
 /examples/thread.json
 
+#Last pop file
+/examples/final_pop.json
+
 #Zip files
 .zip
