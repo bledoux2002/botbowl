@@ -956,7 +956,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
             population = ga.initialize_pop()
         case "b":
             ## Best chromosome atm
-            population = ["11110001001000100110001001011011000111001000011001011011101010000111000011101110000010000100001011001101101010011110101111111110011101"]
+            population = ["01111010010100000100111111000101011110100000100010011001110101111101100111111010100001001100001000110100001001010011001110001011111111"]
         case "p":
             with open("final_pop.json", "r", encoding="utf-8") as popFile:
                 popData = json.load(popFile)
