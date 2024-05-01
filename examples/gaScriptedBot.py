@@ -988,8 +988,8 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
     ax.set_xlim(0, generation)
-    yLimUp = 10
-    yLimDown = -10
+    yLimUp = 7
+    yLimDown = 0
     ax.set_ylim(yLimDown, yLimUp)
     if generation < 10:
         xTicks = 1
