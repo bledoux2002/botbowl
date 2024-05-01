@@ -987,7 +987,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Most Fit Chromosome")
-    ax.set_xlim(0, generation)
+    ax.set_xlim(1, generation)
     yLimUp = 7
     yLimDown = 0
     ax.set_ylim(yLimDown, yLimUp)
@@ -1121,7 +1121,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
         ax.plot(plotFitness, 'b', label="Fitness")
         ax.axhline(3.5, color="red", label="Baseline")
-        ax.set_xlim(0, generation)
+        ax.set_xlim(1, generation)
 #        yLimUp = math.ceil(bestOverall[1])
 #        yLimDown = math.floor(worstOverall[1])
 #        ax.set_ylim(yLimDown, yLimUp)
