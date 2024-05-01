@@ -977,7 +977,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
 
     thread = {"thread" : threadIn}
 
-    plotFitness = [0]
+    plotFitness = []
     totalTime = 0.0
 
     # Plot and save results
@@ -1110,6 +1110,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         output += f"Total time to execute: {convertedTime}\n"
         avgTime = totalTime / (popSize * generation * numGames)
         output += f"Average game time: {avgTime}\n"
+        output += f"Won {wins} games out of {numGames}\n"
         #print(output)
 
         with open(f'results/results_{filename}.txt', 'w', encoding='utf-8') as outputFile:
