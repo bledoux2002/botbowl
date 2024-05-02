@@ -982,7 +982,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
 
     # Plot and save results
     fig, ax = plt.subplots()
-    ax.plot(plotFitness, 'b', label="Fitness")
+    ax.plot(plotFitness, 'b+-', label="Fitness")
     ax.plot(3.5, 'r', label="Baseline")
     ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
     ax.set_xlabel("Generation")
@@ -1125,14 +1125,14 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         # Add fitness to be plotted
         plotFitness.append(population_eval[0][1])
         ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
-        ax.plot(plotFitness, '-bo', label="Fitness")
+        ax.plot(plotFitness, 'b+-', label="Fitness")
         ax.axhline(3.5, color="red", label="Baseline")
         if generation < 10:
             xTicks = 1
         else:
             xTicks = generation // 10
-        ax.set_xlim(1, generation + 1)
-        ax.set_xticks(range(1, generation + 1, xTicks))
+        ax.set_xlim(1, generation)
+        ax.set_xticks(range(1, generation, xTicks))
 #        yLimUp = math.ceil(bestOverall[1])
 #        yLimDown = math.floor(worstOverall[1])
 #        ax.set_ylim(yLimDown, yLimUp)

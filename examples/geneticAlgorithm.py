@@ -39,15 +39,19 @@ class GeneticAlgorithm:
     """
     
     # Tournament Style selection
-    def selection(self, population, pressure):
+    def selection(self, population, pressurePercentage):
         # Choose k individuals from entire pop
         # Choose best individual
         selected = []
-        temp_pop = population
+        pressure = math.ceil(self.POP_SIZE * (pressurePercentage / 100))
         for _ in range(self.POP_SIZE):
             tournament = []
-            for i in range(math.ceil(self.POP_SIZE * (pressure / 100))):
-                index = random.randint(0, self.POP_SIZE + 1 - i)
+            temp_pop = population.copy()
+            for i in range(pressure):
+                if i < pressure - 1:
+                    index = random.randint(0, len(temp_pop) - 1)
+                else:
+                    index = 0
                 tournament.append(temp_pop.pop(index))
             tournament_sorted = sorted(tournament, key= lambda x: x[1], reverse=True)
             selected.append(tournament_sorted[0])
