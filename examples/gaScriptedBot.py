@@ -1040,6 +1040,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
 
             # Simulate games using GA bot against Scripted Bot
             wins = 0
+            losses = 0
             tdsFor = 0
             tdsAgainst = 0
             ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
@@ -1065,6 +1066,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
                 print(f"Time to complete: {end - start} seconds")
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
+                losses += 1 if game.get_winning_team() is game.state.away_team else 0
                 tdsFor += game.state.home_team.state.score
                 tdsAgainst += game.state.away_team.state.score
                 with open(f"data_{threadNum}.json", 'r', encoding='utf-8') as chromoFile:
@@ -1075,6 +1077,8 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
             # Log performance
             #chromo = population[i]
             output = f"Won {wins} game(s) out of {numGames}\n"
+            output += f"Lost {losses} game(s) out of {numGames}\n"
+            output += f"Drew {numGames - (wins + losses)} game(s) out of {numGames}\n"
             avgTDsFor = tdsFor / numGames
             avgTDsAgainst = tdsAgainst / numGames
             output += f"Average score: {avgTDsFor} - {avgTDsAgainst}\n"
@@ -1111,6 +1115,8 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         avgTime = totalTime / (popSize * generation * numGames)
         output += f"Average game time: {avgTime}\n"
         output += f"Won {wins} games out of {numGames}\n"
+        output += f"Lost {losses} game(s) out of {numGames}\n"
+        output += f"Drew {numGames - (wins + losses)} game(s) out of {numGames}\n"
         #print(output)
 
         with open(f'results/results_{filename}.txt', 'w', encoding='utf-8') as outputFile:
