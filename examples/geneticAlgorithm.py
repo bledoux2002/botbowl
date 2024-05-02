@@ -2,6 +2,7 @@
 ## Benjamin Ledoux, created 03/04/2024 1:34 PM, last editted 03/04/2024 x:xx PM
 
 import random
+import math
 
 class GeneticAlgorithm:
 
@@ -42,11 +43,12 @@ class GeneticAlgorithm:
         # Choose k individuals from entire pop
         # Choose best individual
         selected = []
+        temp_pop = population
         for _ in range(self.POP_SIZE):
             tournament = []
-            for _ in range(pressure):
-                index = random.randint(0, self.POP_SIZE - 1)
-                tournament.append(population[index])
+            for i in range(math.ceil(self.POP_SIZE * (pressure / 100))):
+                index = random.randint(0, self.POP_SIZE + 1 - i)
+                tournament.append(temp_pop.pop(index))
             tournament_sorted = sorted(tournament, key= lambda x: x[1], reverse=True)
             selected.append(tournament_sorted[0])
         return selected
