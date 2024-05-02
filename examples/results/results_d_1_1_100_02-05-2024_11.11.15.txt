@@ -1,0 +1,8 @@
+Choice: d, Population Size: 1, Elitism: 1, Generations: 1, Games per Chromosome: 100, Thread: 0
+11111111111111111100111101110011110000000110011111110001111011111111110000000000000001000000100000001100000100000001010000011000000111 was the strongest candidate over 1 generations, with a fitness score of -1.5059999999999998.
+Total time to execute: 0.0 hours, 17.0 minutes, 15.205420732498169 seconds
+Average game time: 10.352054207324981
+Won 19 games out of 100
+Lost 42 game(s) out of 100
+Drew 39 game(s) out of 100
+

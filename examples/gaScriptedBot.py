@@ -1128,16 +1128,17 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         ax.plot(plotFitness, 'b', label="Fitness")
         ax.axhline(3.5, color="red", label="Baseline")
         ax.set_xlim(1, generation)
-        if (generation == 1):
-            ax.set_xlim(0, generation)
-#        yLimUp = math.ceil(bestOverall[1])
-#        yLimDown = math.floor(worstOverall[1])
-#        ax.set_ylim(yLimDown, yLimUp)
         if generation < 10:
             xTicks = 1
         else:
             xTicks = generation // 10
-        ax.set_xticks(range(0, generation, xTicks))
+        ax.set_xticks(range(1, generation, xTicks))
+        if (generation == 1):
+            ax.set_xlim(0, generation)
+            ax.set_xticks(range(0, generation, xTicks))
+#        yLimUp = math.ceil(bestOverall[1])
+#        yLimDown = math.floor(worstOverall[1])
+#        ax.set_ylim(yLimDown, yLimUp)
 #        yTicks = (abs(yLimUp) + abs(yLimDown)) // 10
 #        ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
         fig.savefig(f'results/plot_{filename}.png')
