@@ -1176,15 +1176,15 @@ if __name__ == "__main__":
     parser.add_argument("--chromo", required=False, type=str, default="c", help="c - chromosomes; d - default; b - best chromo atm; p - previous population")
     parser.add_argument("--opp", required=False, type=str, default="r", help="r - random; s - scripted")
     parser.add_argument("--pop", required=False, type=int, default=100)
-    parser.add_argument("--elite", required=False, type=int, default=1)
+    parser.add_argument("--keep", required=False, type=int, default=5)
     parser.add_argument("--gen", required=False, type=int, default=100)
-    parser.add_argument("--games", required=False, type=int, default=20)
+    parser.add_argument("--games", required=False, type=int, default=5)
     parser.add_argument("--thread", required=False, type=int, default = 0)
     args = parser.parse_args()
     choice = args.chromo
     opp = args.opp
     popSize = args.pop
-    numSave = args.elite
+    numSave = args.keep
     genLim = args.gen
     numGames = args.games
     thread = args.thread
