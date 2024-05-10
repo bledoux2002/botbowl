@@ -24,7 +24,8 @@ class GeneticAlgorithm:
 
     # Turn chromosome and fitness into tuple (currently pointless to be a whole function but might be changed later)
     def fitness_cal(self, chromo_from_pop, ballProg, tdsFor, tdsAgainst, wins, losses, games):
-        fit = (ballProg * 0.01) + (0.1 * (tdsFor - tdsAgainst)) + (3 * wins) + (games - (wins + losses))
+        fit = (ballProg * 0.1) + (tdsFor - tdsAgainst)
+        #fit = (ballProg * 0.01) + (0.1 * (tdsFor - tdsAgainst)) + (3 * wins) + (games - (wins + losses))
         return [chromo_from_pop, fit]
 
     # Return sorted list of best half of population based on fitness
