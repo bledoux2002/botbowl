@@ -1,3 +1,7 @@
+## gaScripteBot.py, Benjamin Ledoux - bledoux@conncoll.edu
+## Adapted from scripted_bot_example.py for refinement through a Genetic Algorithm using geneticAlgorithm.py
+## Most changes are in main() function, the rest is exposing the Scripted Bot to the GA
+
 #!/usr/bin/env python3
 from typing import List
 
@@ -20,7 +24,7 @@ import matplotlib.pyplot as plt
 #import os
 import argparse
 
-## Variable randomizer
+## Translate genes in chromosome into behaviors, used for binary chocies like "Use Reroll" vs "Don't Use Reroll"
 def binaryChoice(binary, a, b):
     if binary == "0": ## Chromosomes are easier to store and manipulate as strings
         return a
@@ -40,7 +44,7 @@ class GAScriptedBot(ProcBot):
         self.last_turn = 0
         self.last_half = 0
 
-        self.ball_dist = 0
+        self.ball_dist = 0 ## Used for fitness calculation, stores how far the ball has moved towards the opposing endzone
         self.ball_dist_prev = 0
         self.turnCount = 0
 
@@ -84,24 +88,25 @@ class GAScriptedBot(ProcBot):
         self.def_formation = Formation("Zone defense", self.def_formation)
         self.setup_actions = []
 
+        ## Attempt at multithreading, so far unsuccessful. To avoid overwriting files being used by the bot, this determines which file to use for each concurrent simulation
         threadData = {"thread" : 0}
         with open('thread.json', 'r', encoding='utf-8') as dataFile:
             threadData = json.load(dataFile)
         thread = threadData["thread"]
-
-        self.filename = f"data_{thread}.json"
+        self.filename = f"data_{thread}.json" ## In theory if you had 2 runs going at once, the first would use data_0.json and the second would use data_1.json
 #        print(self.filename)
 
+        ## Retrieves chromosome to be used as controller for bot behavior from external json file
         self.chromoData = {
             "currentChromosome" : None,
             "ballProgress" : None
         }
         with open(self.filename, 'r', encoding='utf-8') as chromoFile:
             self.chromoData = json.load(chromoFile)
-        self.chromoData["ballProgress"] = 0
-        #print(self.chromoData["currentChromosome"])
+        self.chromoData["ballProgress"] = 0 # Resets ball progress from previous chromosome
+#        print(self.chromoData["currentChromosome"])
 
-        # Genes 1-15
+        ## Genes 1-15, all binary choices
         self.coinChoice = binaryChoice(self.chromoData["currentChromosome"][0], ActionType.HEADS, ActionType.TAILS)
         self.kickChoice = binaryChoice(self.chromoData["currentChromosome"][1], ActionType.KICK, ActionType.RECEIVE)
         self.dodgeReroll = binaryChoice(self.chromoData["currentChromosome"][2], ActionType.DONT_USE_REROLL, ActionType.USE_REROLL)
@@ -118,20 +123,21 @@ class GAScriptedBot(ProcBot):
         self.proSkill = binaryChoice(self.chromoData["currentChromosome"][13], ActionType.DONT_USE_SKILL, ActionType.USE_SKILL)
         self.useBribe = binaryChoice(self.chromoData["currentChromosome"][14], ActionType.DONT_USE_BRIBE, ActionType.USE_BRIBE)
 
-        # Genes 16-70
-        self.tdPathLim1 = float(int(self.chromoData["currentChromosome"][15:18], 2) + int(self.chromoData["currentChromosome"][18:20], 2)) / 10 #default 0.7
-        self.tdPathLim2 = float(int(self.chromoData["currentChromosome"][20:23], 2) + int(self.chromoData["currentChromosome"][23:25], 2)) / 10 #default 0.9
-        self.handoffLim = float(int(self.chromoData["currentChromosome"][25:28], 2) + int(self.chromoData["currentChromosome"][28:30], 2)) / 10 #default 0.7
-        self.blockLim = float(int(self.chromoData["currentChromosome"][30:33], 2) + int(self.chromoData["currentChromosome"][33:35], 2)) / 10 #default 0.94
-        self.fumbleLim = float(int(self.chromoData["currentChromosome"][35:38], 2) + int(self.chromoData["currentChromosome"][38:40], 2)) / 10 #default 0.0
-        self.pickupLim = float(int(self.chromoData["currentChromosome"][40:43], 2) + int(self.chromoData["currentChromosome"][43:45], 2)) / 10 #default 0.33
-        self.recPathLim = float(int(self.chromoData["currentChromosome"][45:48], 2) + int(self.chromoData["currentChromosome"][48:50], 2)) / 10 #default 1.0
-        self.blitzLim = float(int(self.chromoData["currentChromosome"][50:53], 2) + int(self.chromoData["currentChromosome"][53:55], 2)) / 5 #default 1.25
-        self.cageLim = float(int(self.chromoData["currentChromosome"][55:58], 2) + int(self.chromoData["currentChromosome"][58:60], 2)) / 10 #default 0.94
-        self.assPathLim = float(int(self.chromoData["currentChromosome"][60:63], 2) + int(self.chromoData["currentChromosome"][63:65], 2)) / 10 #default 1.0
-        self.moveLim = float(int(self.chromoData["currentChromosome"][65:68], 2) + int(self.chromoData["currentChromosome"][68:70], 2)) / 10 #default 1.0 combine w/assPathLim and recPathLim?
+        ## Genes 16-70, all chance-based decisions (if chance of success greater than x, do such and such...).
+        ## Genes are split into sets of 3 and 2 bits translated as Binary Coded Decimal and added together to work as intervals of 10% (0%, 10%, 20%, etc.)
+        self.tdPathLim1 = float(int(self.chromoData["currentChromosome"][15:18], 2) + int(self.chromoData["currentChromosome"][18:20], 2)) / 10 ## default 0.7
+        self.tdPathLim2 = float(int(self.chromoData["currentChromosome"][20:23], 2) + int(self.chromoData["currentChromosome"][23:25], 2)) / 10 ## default 0.9
+        self.handoffLim = float(int(self.chromoData["currentChromosome"][25:28], 2) + int(self.chromoData["currentChromosome"][28:30], 2)) / 10 ## default 0.7
+        self.blockLim = float(int(self.chromoData["currentChromosome"][30:33], 2) + int(self.chromoData["currentChromosome"][33:35], 2)) / 10 ## default 0.94
+        self.fumbleLim = float(int(self.chromoData["currentChromosome"][35:38], 2) + int(self.chromoData["currentChromosome"][38:40], 2)) / 10 ## default 0.0
+        self.pickupLim = float(int(self.chromoData["currentChromosome"][40:43], 2) + int(self.chromoData["currentChromosome"][43:45], 2)) / 10 ## default 0.33
+        self.recPathLim = float(int(self.chromoData["currentChromosome"][45:48], 2) + int(self.chromoData["currentChromosome"][48:50], 2)) / 10 ## default 1.0
+        self.blitzLim = float(int(self.chromoData["currentChromosome"][50:53], 2) + int(self.chromoData["currentChromosome"][53:55], 2)) / 5 ## default 1.25, intervals of 20%
+        self.cageLim = float(int(self.chromoData["currentChromosome"][55:58], 2) + int(self.chromoData["currentChromosome"][58:60], 2)) / 10 ## default 0.94
+        self.assPathLim = float(int(self.chromoData["currentChromosome"][60:63], 2) + int(self.chromoData["currentChromosome"][63:65], 2)) / 10 #d# efault 1.0
+        self.moveLim = float(int(self.chromoData["currentChromosome"][65:68], 2) + int(self.chromoData["currentChromosome"][68:70], 2)) / 10 ## default 1.0 combine w/assPathLim and recPathLim?
 
-        # Genes 71-134
+        ## Genes 71-134, determining the order of _make_plan(), one byte per function in _make_plan(), bytes are treated as weights to determine ordering
         order = {}
         for i in range(8):
             start = (i * 8) + 70
@@ -322,8 +328,8 @@ class GAScriptedBot(ProcBot):
         #print(f"Action: {action.to_json()}")
         return action
 
+    ## Main plan function, originally used safest order of actions (least risky to most risky)
     def _make_plan(self, game: botbowl.Game, ball_carrier):
-        #USE THIS FOR GA
         #print("1. Stand up marked players")
         if (self._stand_marked_players(game) == 0):
             return
@@ -346,7 +352,7 @@ class GAScriptedBot(ProcBot):
                         return
                 case 3:
                     if not openLogged:
-                        # Scan for unused players that are not marked
+                        ## Scan for unused players that are not marked
                         open_players = self._open_players(game)
                         openLogged = True
                     #print("5. Move receivers into scoring distance if not already")
@@ -354,7 +360,7 @@ class GAScriptedBot(ProcBot):
                         return
                 case 4:
                     if not openLogged:
-                        # Scan for unused players that are not marked
+                        ## Scan for unused players that are not marked
                         open_players = self._open_players(game)
                         openLogged = True
                     #print("6. Blitz with open block players")
@@ -362,7 +368,7 @@ class GAScriptedBot(ProcBot):
                         return
                 case 5:
                     if not openLogged:
-                        # Scan for unused players that are not marked
+                        ## Scan for unused players that are not marked
                         open_players = self._open_players(game)
                         openLogged = True
                     #print("7. Make cage around ball carrier")
@@ -373,14 +379,14 @@ class GAScriptedBot(ProcBot):
                         # Scan for unused players that are not marked
                         open_players = self._open_players(game)
                         openLogged = True
-                    # Scan for assist positions
+                    ## Scan for assist positions
                     assist_positions = self._assist_positions(game)
                     #print("8. Move non-marked players to assist")
                     if (self._move_to_assist(game, open_players, assist_positions) == 0):
                         return
                 case 7:
                     if not openLogged:
-                        # Scan for unused players that are not marked
+                        ## Scan for unused players that are not marked
                         open_players = self._open_players(game)
                         openLogged = True
                     #print("9. Move towards the ball")
@@ -398,27 +404,27 @@ class GAScriptedBot(ProcBot):
             return
 
 
-## Extract order of operations from _make_plan into functions
+## Each of these functions was originally in _make_plan(), extracted to separate functions to mix up ordering
     def _stand_marked_players(self, game):
          for player in self.my_team.players:
             if player.position is not None and not player.state.up and not player.state.stunned and not player.state.used:
                 if game.num_tackle_zones_in(player) > 0:
                     self.actions.append(Action(ActionType.START_MOVE, player=player))
                     self.actions.append(Action(ActionType.STAND_UP))
-                    #print(f"Stand up marked player {player.role.name}")
+#                    print(f"Stand up marked player {player.role.name}")
                     return 0
 
     def _move_ball_carrier(self, game, ball_carrier):
         if ball_carrier is not None and ball_carrier.team == self.my_team and not ball_carrier.state.used:
-            #print("2.1 Can ball carrier score with high probability")
+#            print("2.1 Can ball carrier score with high probability")
             td_path = pf.get_safest_path_to_endzone(game, ball_carrier, allow_team_reroll=True)
             if td_path is not None and td_path.prob >= self.tdPathLim1:
                 self.actions.append(Action(ActionType.START_MOVE, player=ball_carrier))
                 self.actions.extend(path_to_move_actions(game, ball_carrier, td_path))
-                #print(f"Score with ball carrier, p={td_path.prob}")
+#                print(f"Score with ball carrier, p={td_path.prob}")
                 return 0
 
-            #print("2.2 Hand-off action to scoring player")
+#            print("2.2 Hand-off action to scoring player")
             if game.is_handoff_available():
 
                 # Get players in scoring range
@@ -451,7 +457,7 @@ class GAScriptedBot(ProcBot):
                     self.actions.extend(path_to_move_actions(game, ball_carrier, handoff_path))
                     return 0
 
-            #print("2.3 Move safely towards the endzone")
+#            print("2.3 Move safely towards the endzone")
             if game.num_tackle_zones_in(ball_carrier) == 0:
                 paths = pf.get_all_paths(game, ball_carrier)
                 best_path = None
@@ -465,7 +471,7 @@ class GAScriptedBot(ProcBot):
                 if best_path is not None:
                     self.actions.append(Action(ActionType.START_MOVE, player=ball_carrier))
                     self.actions.extend(path_to_move_actions(game, ball_carrier, best_path))
-                    #print(f"Move ball carrier {ball_carrier.role.name}")
+#                    print(f"Move ball carrier {ball_carrier.role.name}")
                     return 0
 
     def _safe_blocks(self, game):
@@ -473,7 +479,7 @@ class GAScriptedBot(ProcBot):
         if attacker is not None and p_self_up > self.blockLim and block_p_fumble_self <= self.fumbleLim:
             self.actions.append(Action(ActionType.START_BLOCK, player=attacker))
             self.actions.append(Action(ActionType.BLOCK, position=defender.position))
-            #print(f"Safe block with {attacker.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
+#            print(f"Safe block with {attacker.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
             return 0
 
     def _pickup_ball(self, game):
@@ -494,7 +500,7 @@ class GAScriptedBot(ProcBot):
             if pickup_player is not None and pickup_p > self.pickupLim:
                 self.actions.append(Action(ActionType.START_MOVE, player=pickup_player))
                 self.actions.extend(path_to_move_actions(game, pickup_player, pickup_path))
-                #print(f"Pick up the ball with {pickup_player.role.name}, p={pickup_p}")
+#                print(f"Pick up the ball with {pickup_player.role.name}, p={pickup_p}")
                 # Find safest path towards endzone
                 if game.num_tackle_zones_at(pickup_player, game.get_ball_position()) == 0 and game.get_opp_endzone_x(self.my_team) != game.get_ball_position().x:
                     paths = pf.get_all_paths(game, pickup_player, from_position=game.get_ball_position(), num_moves_used=len(pickup_path))
@@ -508,11 +514,11 @@ class GAScriptedBot(ProcBot):
                             best_distance = distance_to_endzone
                     if best_path is not None:
                         self.actions.extend(path_to_move_actions(game, pickup_player, best_path, do_assertions=False))
-                        #print(f"- Move ball carrier {pickup_player.role.name}")
+#                        print(f"- Move ball carrier {pickup_player.role.name}")
                 return 0
 
     def _open_players(self, game):
-        # Supplementary step, needed before certain steps in _make_plan()
+        ## Supplementary step, needed before certain steps in _make_plan()
         open_players = []
         for player in self.my_team.players:
             if player.position is not None and not player.state.used and game.num_tackle_zones_in(player) == 0:
@@ -526,7 +532,7 @@ class GAScriptedBot(ProcBot):
                     continue
                 paths = pf.get_all_paths(game, player)
                 best_path = None
-                best_distance = math.inf # changed from 100 to infinity just in case field size were increased
+                best_distance = math.inf ## changed from 100 to infinity just in case field size were increased
                 target_x = game.get_opp_endzone_x(self.my_team)
                 for path in paths:
                     distance_to_endzone = abs(target_x - path.steps[-1].x)
@@ -536,7 +542,7 @@ class GAScriptedBot(ProcBot):
                 if best_path is not None:
                     self.actions.append(Action(ActionType.START_MOVE, player=player))
                     self.actions.extend(path_to_move_actions(game, player, best_path))
-                    #print(f"Move receiver {player.role.name}")
+#                    print(f"Move receiver {player.role.name}")
                     return 0
 
     def _blitz(self, game, open_players):
@@ -569,7 +575,7 @@ class GAScriptedBot(ProcBot):
             if best_blitz_attacker is not None and best_blitz_score >= self.blitzLim:
                 self.actions.append(Action(ActionType.START_BLITZ, player=best_blitz_attacker))
                 self.actions.extend(path_to_move_actions(game, best_blitz_attacker, best_blitz_path))
-                #print(f"Blitz with {best_blitz_attacker.role.name}, score={best_blitz_score}")
+#                print(f"Blitz with {best_blitz_attacker.role.name}, score={best_blitz_score}")
                 return 0
 
     def _cage_carrier(self, game, ball_carrier, open_players):
@@ -593,11 +599,11 @@ class GAScriptedBot(ProcBot):
                         if path is not None and path.prob > self.cageLim:
                             self.actions.append(Action(ActionType.START_MOVE, player=player))
                             self.actions.extend(path_to_move_actions(game, player, path))
-                            #print(f"Make cage around towards ball carrier {player.role.name}")
+#                            print(f"Make cage around towards ball carrier {player.role.name}")
                             return 0
 
     def _assist_positions(self, game):
-        # Supplementary step, needed before certain steps in _make_plan()
+        ## Supplementary step, needed before certain steps in _make_plan()
         assist_positions = set()
         for player in game.get_opp_team(self.my_team).players:
             if player.position is None or not player.state.up:
@@ -617,7 +623,7 @@ class GAScriptedBot(ProcBot):
                     continue
                 self.actions.append(Action(ActionType.START_MOVE, player=player))
                 self.actions.extend(path_to_move_actions(game, player, path))
-                # print(f"Move assister {player.role.name} to {path.get_last_step().to_json}")
+#                print(f"Move assister {player.role.name} to {path.get_last_step().to_json}")
                 return 0
 
     def _move_to_ball(self, game, ball_carrier, open_players):
@@ -644,7 +650,7 @@ class GAScriptedBot(ProcBot):
             if path is not None:
                 self.actions.append(Action(ActionType.START_MOVE, player=player))
                 self.actions.extend(path_to_move_actions(game, player, path))
-                #print(f"Move towards ball {player.role.name}")
+#                print(f"Move towards ball {player.role.name}")
                 return 0
 
     def _risky_blocks(self, game):
@@ -652,7 +658,7 @@ class GAScriptedBot(ProcBot):
         if attacker is not None and (p_opp_down > (1-p_self_up) or block_p_fumble_opp > 0): #leave? seems like last option and fills rest of turn with possible actions
             self.actions.append(Action(ActionType.START_BLOCK, player=attacker))
             self.actions.append(Action(ActionType.BLOCK, position=defender.position))
-            #print(f"Block with {player.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
+#            print(f"Block with {player.role.name} -> {defender.role.name}, p_self_up={p_self_up}, p_opp_down={p_opp_down}")
             return 0
 
 ## End of _make_plan() extraction
@@ -859,6 +865,7 @@ class GAScriptedBot(ProcBot):
         position = game.get_available_actions()[0].positions[0]
         return Action(ActionType.SELECT_PLAYER, position)
 
+    ## Output results, save fitness function metrics to json file
     def end_game(self, game):
         """
         Called when a game ends.
@@ -872,7 +879,7 @@ class GAScriptedBot(ProcBot):
         else:
             output += f"{self.name} lost, "
         output += f"{self.my_team.state.score} - {self.opp_team.state.score}"
-        #output += self.chromoData["currentChromosome"] + "\n"
+#        output += self.chromoData["currentChromosome"] + "\n"
 #        print(output)
         with open(self.filename, 'w', encoding='utf-8') as chromoFile:
             json.dump(self.chromoData, chromoFile, indent=4)
@@ -931,56 +938,59 @@ def path_to_move_actions(game: botbowl.Game, player: botbowl.Player, path: Path,
         return actions
 
 
-# Register MyScriptedBot
+## Register this bot with Bot Bowl for using in games
 botbowl.register_bot('ga_scripted', GAScriptedBot)
 
 
-def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 1, threadIn = 0):
-    now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S") #used for all filenames
+def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn = 100, numGamesIn = 5, threadIn = 0): ## these default values are overwritten at bottom of file
+    now = datetime.now().strftime("%d-%m-%Y_%H.%M.%S") ## used for all filenames
     filename = f"{choiceIn}_{popSizeIn}_{genLimIn}_{numGamesIn}_{now}"
     ## GA Setup
-    choice = choiceIn                       # chromosomes, default, or best chromosome
-    opponent = oppIn                        # random or scripted
-    chromoLen = 134                         # Size of chromosomes, (134)
-    popSize = popSizeIn                     # Number of chromosomes per generation (100)
-    pressure = 50                           # Selection pressure (50, number of chromosomes to use in tournament)
-    mutRate = 0.01                          # Rate of mutation in chromosomes (0.01 = 1%)
-    numToSave = numToSaveIn                 # Number of best fit chromosomes to carry over between generations (1)
+    choice = choiceIn                       ## chromosomes, default, or best chromosome
+    opponent = oppIn                        ## random (r) or scripted (s)
+    chromoLen = 134                         ## Size of chromosomes, (134)
+    popSize = popSizeIn                     ## Number of chromosomes per generation (100)
+    pressure = 50                           ## Selection pressure percentage (50%, number of chromosomes to use in tournament)
+    mutRate = 0.01                          ## Rate of mutation in chromosomes (0.01 = 1%)
+    numToSave = numToSaveIn                 ## Number of best fit chromosomes to carry over between generations (5)
     ga = GeneticAlgorithm(chromoLen, popSize, mutRate, numToSave)
     match choice:
         case "d":
-            ## Default Chromosome (mimics original scripted bot)
+            ## Default Chromosome (roughly mimics original scripted bot)
             population = ["11111111111111111100111101110011110000000110011111110001111011111111110000000000000001000000100000001100000100000001010000011000000111"]
         case "c":
-            ## GA Chromosome
+            ## GA Chromosome (default)
             population = ga.initialize_pop()
         case "b":
-            ## Best chromosome atm
+            ## Best chromosome at the moment (not finalized)
             population = ["00000010110110111011011100011110110100011000000110011001100100100111000110010001100101001001101101010110000101100111001110011010100001"]
         case "p":
+            ## Uses the last saved population of chromosomes (useful for testing a converged population from Random on the Original Scripted Bot)
             with open("final_pop.json", "r", encoding="utf-8") as popFile:
                 popData = json.load(popFile)
             population = []
             for chromo in popData["pop"]:
                 population.append(chromo[0])
-    found = False                           # Used if specific target value trying to be met
-    generation = 1                          # Current generation
-    generationLimit = genLimIn              # Number of generations to simulate (100)
-    numGames = numGamesIn                   # Number of games to simulate per chromosome, results averaged to reduce randomness of chance (1)
-    bestOverall = ["", -math.inf]           # Best chromosome overall for graphing purposes
-    worstOverall = ["", math.inf]           # Worst chromosome overall for graphing purposes (worst of best chromosomes per pop)
+    found = False                           ## Used if specific target value trying to be met, we do not so not useful
+    generation = 1                          ## Current generation
+    generationLimit = genLimIn              ## Number of generations to simulate (100)
+    numGames = numGamesIn                   ## Number of games to simulate per chromosome, results averaged to reduce randomness of chance (5)
+    bestOverall = ["", -math.inf]           ## Best chromosome overall for graphing purposes
+    worstOverall = ["", math.inf]           ## Worst chromosome overall for graphing purposes (worst of best chromosomes per pop)
 
+    ## Saved to json file for ga bot to read from
     chromoData = {
         "currentChromosome" : population[0],
         "ballProgress" : 0
     }
 
+    ## Determines which file is used by ga bot so data not overwritten is doing multiple concurrent runs, does not work currently
     thread = {"thread" : threadIn}
 
-    plotFitness = [0]
-    totalTime = 0.0
+    plotFitness = [0] ## Array of best chromosomes for each population to graph
+    totalTime = 0.0 ## Shows how long full run takes
 
-    # Plot and save results
+    ## Plot and save results (initialize plot and text files)
     fig, ax = plt.subplots()
     ax.plot(plotFitness, 'b+-', label="Fitness")
     ax.plot(3.5, 'r', label="Baseline")
@@ -1003,10 +1013,11 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     ax.minorticks_on()
     ax.legend()
 
+    ## Saves thread to file so bot knows which data file to use
     with open('thread.json', 'w', encoding='utf-8') as threadFile:
         json.dump(thread, threadFile, indent = 4)
 
-    # Update first chromosome to test
+    ## Save first chromosome of population to data file for bot to read and use as controller
     threadNum = thread["thread"]
 #    print(filename)
     with open (f"data_{threadNum}.json", 'w', encoding='utf-8') as chromoFile:
@@ -1024,27 +1035,27 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
     home = botbowl.load_team_by_filename("human", ruleset)
     away = botbowl.load_team_by_filename("human", ruleset)
 
-    # Loop until target found or generations max out
+    ## Loop until target found or generations max out
     while not found and generation <= generationLimit:
 
-        # List of (population, fitness) tuples
+        ## List of (chromosome, fitness) tuples
         population_eval = []
 
-        # Avg performance of individual chromosomes in a pop
+        ## Avg performance of individual chromosomes in a pop
         for i in range (popSize):
 
-            # Update current chromosome for bot to use
+            ## Update current chromosome for bot to use
             chromoData["currentChromosome"] = population[i]
             with open(f"data_{threadNum}.json", 'w', encoding='utf-8') as chromoFile:
                 json.dump(chromoData, chromoFile, indent=4)
 
-            # Simulate games using GA bot against Scripted Bot
+            ## Simulate games using GA bot against Scripted Bot
             wins = 0
             losses = 0
             tdsFor = 0
             tdsAgainst = 0
-            ball_progression = 0 # New fitness calc, how many spaces towards endzone did ball go
-            # Play x games
+            ball_progression = 0 ## How many spaces towards endzone did ball go
+            ## Play j games per chromosome
             print(f"\nGENERATION {generation} CHROMOSOME {i + 1}:\t{population[i]}")
             for j in range(numGames):
                 home_agent = botbowl.make_bot('ga_scripted')
@@ -1063,7 +1074,7 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
                 game.init()
                 end = time.time()
                 totalTime += end - start
-                print(f"Time to complete: {end - start} seconds")
+                print(f"Time to complete: {end - start} seconds") ## Useful for estimating how long a full run will take
 
                 wins += 1 if game.get_winning_team() is game.state.home_team else 0
                 losses += 1 if game.get_winning_team() is game.state.away_team else 0
@@ -1074,8 +1085,8 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
                     chromoData["ballProgress"] = data["ballProgress"]
                     ball_progression += chromoData["ballProgress"]
 
-            # Log performance
-            #chromo = population[i]
+            ## Log performance
+#            chromo = population[i]
             output = f"Won {wins} game(s) out of {numGames}\n"
             output += f"Lost {losses} game(s) out of {numGames}\n"
             output += f"Drew {numGames - (wins + losses)} game(s) out of {numGames}\n"
@@ -1085,21 +1096,22 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
             avgProgression = ball_progression / numGames
             output += f"Average ball progression per game = {avgProgression}\n"
 
-            # Calculate fitness of current chromosome
-            population_eval.append(ga.fitness_cal(population[i], avgProgression, avgTDsFor, avgTDsAgainst, wins, losses, numGames))
+            ## Calculate fitness of current chromosome
+            population_eval.append(ga.fitness_cal(population[i], avgProgression, avgTDsFor, avgTDsAgainst, wins, losses, numGames)) ## Last few are not incorporated yet
 
             output+= f"Fitness: {population_eval[-1][1]}"
             print(output)
 
-        ## Bulk of GA
+########## Bulk of GA ##########
 
-        # Sort by fitness
+        ## Sort by fitness, save if best/worst chromosome of top performers for plotting
         population_eval = sorted(population_eval, key = lambda x: x[1], reverse=True)
         if i == 0 or population_eval[0][1] > bestOverall[1]:
             bestOverall = population_eval[0]
         if i == 0 or population_eval[0][1] < worstOverall[1]:
             worstOverall = population_eval[0]
 
+        ## Save population for testing against other opps after convergence
         with open("final_pop.json", "w", encoding='utf-8') as popFile:
                 popData = {"pop": population_eval}
                 json.dump(popData, popFile, indent=4)
@@ -1117,12 +1129,14 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
         output += f"Won {wins} games out of {numGames}\n"
         output += f"Lost {losses} game(s) out of {numGames}\n"
         output += f"Drew {numGames - (wins + losses)} game(s) out of {numGames}\n"
-        #print(output)
+#        print(output)
 
+        ## Save results (overwrites every generation in case run stops for any reason)
         with open(f'results/results_{filename}.txt', 'w', encoding='utf-8') as outputFile:
             outputFile.write(output + "\n")
 
-        # Add fitness to be plotted
+        ## Add best chromosome to be plotted, also overwrites every gen
+        ## Consider adding average fitness of entire population here
         plotFitness.append(population_eval[0][1])
         ax.set_title(f"Fitness of GA Bot Over {generation} Generations")
         ax.plot(plotFitness, 'b+-', label="Fitness")
@@ -1140,10 +1154,10 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
 #        ax.set_yticks(np.arange(yLimDown, yLimUp, yTicks))
         fig.savefig(f'results/plot_{filename}.png')
 
-        # Break if target met
+        ## Break if fitness converges/stalls too long (not using this anymore) 
         """
         avgChange = 1
-        if generation > 9: #If change stagnates, end sim
+        if generation > 9: ## If change stagnates, end sim
             new = np.array(plotFitness[generation - 6:])
             old = np.array(plotFitness[generation - 7:-1])
             dif = np.subtract(new, old)
@@ -1151,27 +1165,30 @@ def main(choiceIn = "c", oppIn = "r", popSizeIn = 100, numToSaveIn = 1, genLimIn
             absDifs = [abs(num) for num in difList]
             avgChange = sum(absDifs) / 5 #avg change of best fit over last 5 generations
         """
+        ## End if generation cap reached
         if generation == generationLimit:
             print(f"\nTarget found in {generation}\nCHROMOSOME: {population_eval[0][0]}\nFITNESS: {population_eval[0][1]}\n")
             break
+        
         print(f"\nTop chromosome of generation {generation}: {population_eval[0][0]}, fitness: {population_eval[0][1]}\n")
         generation += 1
 
-        # Select best 1/2 chromosomes from current population
+        ## Select parents using tournament style
         selected = ga.selection(population_eval, pressure)
 
-        # Mate parents to make new generation
+        ## Mate parents to make new generation
         crossovered = ga.crossover(selected)
 
-        # Mutate the new generation for *variety*
+        ## Mutate the new generation for *variety*
         mutated = ga.mutate(crossovered)
 
-        # Replacement of old population with new generation
+        ## Replacement of old population with new generation, including elitism
         population = ga.replace(population_eval, mutated)
 
 #    input("Press enter to exit the program...\n")
 
 if __name__ == "__main__":
+    ## Parser arguments for execution through terminal (these defaults overwrite the main() defaults)
     parser = argparse.ArgumentParser()
     parser.add_argument("--chromo", required=False, type=str, default="c", help="c - chromosomes; d - default; b - best chromo atm; p - previous population")
     parser.add_argument("--opp", required=False, type=str, default="r", help="r - random; s - scripted")
@@ -1179,7 +1196,7 @@ if __name__ == "__main__":
     parser.add_argument("--keep", required=False, type=int, default=5)
     parser.add_argument("--gen", required=False, type=int, default=100)
     parser.add_argument("--games", required=False, type=int, default=5)
-    parser.add_argument("--thread", required=False, type=int, default = 0)
+    parser.add_argument("--thread", required=False, type=int, default = 0) ## Unless you are trying to fix the manual multithreading, leave this alone
     args = parser.parse_args()
     choice = args.chromo
     opp = args.opp

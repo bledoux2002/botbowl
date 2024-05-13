@@ -1,5 +1,5 @@
-## geneticAlgorithm.py, Genetic Algorithm Python implementation for use in Bot Bowl
-## Benjamin Ledoux, created 03/04/2024 1:34 PM, last editted 03/04/2024 x:xx PM
+## geneticAlgorithm.py, Benjamin Ledoux - bledoux@conncoll.edu
+## Genetic Algorithm Python implementation for use in Bot Bowl
 
 import random
 import math
@@ -58,16 +58,17 @@ class GeneticAlgorithm:
             selected.append(tournament_sorted[0])
         return selected
 
-    # Creating new population using best half of old population
+    # Creating new population using selected parents
+    # Changed to used parents in order of selection, not tested yet
     def crossover(self, parents):
         offspring_cross = []
+        parentsCopy = parents.copy()
         for _ in range(self.POP_SIZE - self.KEEP_COUNT): # If keeping best of parents, only create enough to fill rest of population
-            # Select random parents
-            parent1 = random.choice(parents)
-            parent2 = random.choice(parents)
-            # random.choice(parents[:int(len(population) * 0.5)]) for use if not TOTALLY random
+            # Extract parents from list (still tuples)
+            parent1 = parentsCopy.pop(0)
+            parent2 = parentsCopy.pop(0)
 
-            # Extract chromosomes (offspring yet to be tested, no fitness values for them)
+            # Extract chromosomes from tuples
             p1 = parent1[0]
             p2 = parent2[0]
 
